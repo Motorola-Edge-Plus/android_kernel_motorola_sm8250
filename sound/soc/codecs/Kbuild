@@ -1,6 +1,6 @@
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
-EXTRA_CFLAGS += -I$(TOP)/motorola/kernel/modules/include
+EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
 EXTRA_CFLAGS += -DCONFIG_SND_SOC_AOV_TRIGGER
 
 cirrus_madera-objs = madera.o madera-slimbus.o
