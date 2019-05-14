@@ -2,5 +2,8 @@
 EXTRA_CFLAGS += -Wall
 EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
 EXTRA_CFLAGS += -DCONFIG_EXTCON_MADERA_INPUT_EVENT
+EXTRA_CFLAGS += -DCONFIG_EXTCON_TACNA_INPUT_EVENT
 
 obj-m += extcon-madera.o
+
+obj-m += extcon-tacna.o

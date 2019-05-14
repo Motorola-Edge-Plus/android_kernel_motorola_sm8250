@@ -21,7 +21,6 @@
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/property.h>
-#include <linux/power_supply.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
 #include <linux/regulator/consumer.h>
@@ -43,8 +42,6 @@
 #define MADERA_MICD_CLAMP_MODE_JD1L_JD2L 0x8
 #define MADERA_MICD_CLAMP_MODE_JD1L_JD2H 0x9
 #define MADERA_MICD_CLAMP_MODE_JD1H_JD2H 0xb
-
-#define MADERA_MICD_WRONG_POLARITY	30
 
 #define MADERA_HPDET_LINEOUT		500000 /* 5,000 ohms */
 #define MADERA_HPDET_MAX_OHM		10000
@@ -124,6 +121,17 @@ struct madera_hpdet_calibration_data {
 	s64	dacval_adjust;
 };
 
+static const struct madera_hpdet_calibration_data cs47l15_hpdet_ranges[] = {
+	{},
+	{ 33,   123,   1000000,   -4300,   7975, 69600000, 382800, 33350000,
+	  500000},
+	{ 123,  1033,  9633000,   -79500,  7300, 62900000, 283050, 33350000,
+	  500000},
+	{ 1033, 10033, 100684000, -949400, 7300, 63200000, 284400, 33350000,
+	  500000},
+};
+
+
 static const struct madera_hpdet_calibration_data cs47l85_hpdet_ranges[] = {
 	{ 4,    30,    1007000,   -7200,   4003, 69300000, 381150, 250000, 500000},
 	{ 8,    100,   1007000,   -7200,   7975, 69600000, 382800, 250000, 500000},
@@ -149,6 +157,126 @@ struct madera_hp_tuning {
 	int max_hohm;
 	const struct reg_sequence *patch;
 	int patch_len;
+};
+
+static const struct reg_sequence cs47l15_low_impedance_patch[] = {
+	{ 0x460, 0x0C00 },
+	{ 0x461, 0xCB59 },
+	{ 0x462, 0x0C00 },
+	{ 0x463, 0x6037 },
+	{ 0x464, 0x0C01 },
+	{ 0x465, 0x2D86 },
+	{ 0x466, 0x0801 },
+	{ 0x467, 0x264E },
+	{ 0x468, 0x0801 },
+	{ 0x469, 0x1E6D },
+	{ 0x46A, 0x0802 },
+	{ 0x46B, 0x199A },
+	{ 0x46C, 0x0802 },
+	{ 0x46D, 0x1220 },
+	{ 0x46E, 0x0802 },
+	{ 0x46F, 0x0E65 },
+	{ 0x470, 0x0806 },
+	{ 0x471, 0x0A31 },
+	{ 0x472, 0x080E },
+	{ 0x473, 0x040F },
+	{ 0x474, 0x080E },
+	{ 0x475, 0x0339 },
+	{ 0x476, 0x080E },
+	{ 0x477, 0x028F },
+	{ 0x478, 0x080E },
+	{ 0x479, 0x0209 },
+	{ 0x47A, 0x080E },
+	{ 0x47B, 0x00CF },
+	{ 0x47C, 0x080E },
+	{ 0x47D, 0x0001 },
+	{ 0x47E, 0x081F },
+};
+
+static const struct reg_sequence cs47l15_normal_impedance_patch[] = {
+	{ 0x460, 0x0C00 },
+	{ 0x461, 0xCB59 },
+	{ 0x462, 0x0C00 },
+	{ 0x463, 0xB53C },
+	{ 0x464, 0x0C01 },
+	{ 0x465, 0x4827 },
+	{ 0x466, 0x0801 },
+	{ 0x467, 0x3950 },
+	{ 0x468, 0x0801 },
+	{ 0x469, 0x264E },
+	{ 0x46A, 0x0802 },
+	{ 0x46B, 0x1E6D },
+	{ 0x46C, 0x0802 },
+	{ 0x46D, 0x199A },
+	{ 0x46E, 0x0802 },
+	{ 0x46F, 0x1456 },
+	{ 0x470, 0x0806 },
+	{ 0x471, 0x1220 },
+	{ 0x472, 0x080E },
+	{ 0x473, 0x040F },
+	{ 0x474, 0x080E },
+	{ 0x475, 0x0339 },
+	{ 0x476, 0x080E },
+	{ 0x477, 0x028F },
+	{ 0x478, 0x080E },
+	{ 0x479, 0x0209 },
+	{ 0x47A, 0x080E },
+	{ 0x47B, 0x00CF },
+	{ 0x47C, 0x080E },
+	{ 0x47D, 0x0001 },
+	{ 0x47E, 0x081F },
+};
+
+static const struct reg_sequence cs47l15_high_impedance_patch[] = {
+	{ 0x460, 0x0C00 },
+	{ 0x461, 0xCB59 },
+	{ 0x462, 0x0C00 },
+	{ 0x463, 0xB53C },
+	{ 0x464, 0x0C01 },
+	{ 0x465, 0x6037 },
+	{ 0x466, 0x0801 },
+	{ 0x467, 0x4827 },
+	{ 0x468, 0x0801 },
+	{ 0x469, 0x3950 },
+	{ 0x46A, 0x0802 },
+	{ 0x46B, 0x264E },
+	{ 0x46C, 0x0802 },
+	{ 0x46D, 0x1E6D },
+	{ 0x46E, 0x0802 },
+	{ 0x46F, 0x199A },
+	{ 0x470, 0x0806 },
+	{ 0x471, 0x1220 },
+	{ 0x472, 0x080E },
+	{ 0x473, 0x040F },
+	{ 0x474, 0x080E },
+	{ 0x475, 0x0339 },
+	{ 0x476, 0x080E },
+	{ 0x477, 0x028F },
+	{ 0x478, 0x080E },
+	{ 0x479, 0x0209 },
+	{ 0x47A, 0x080E },
+	{ 0x47B, 0x00CF },
+	{ 0x47C, 0x080E },
+	{ 0x47D, 0x0001 },
+	{ 0x47E, 0x081F },
+};
+
+static const struct madera_hp_tuning cs47l15_hp_tuning[] = {
+	{
+		1600,
+		cs47l15_low_impedance_patch,
+		ARRAY_SIZE(cs47l15_low_impedance_patch),
+	},
+	{
+		3200,
+		cs47l15_normal_impedance_patch,
+		ARRAY_SIZE(cs47l15_normal_impedance_patch),
+	},
+	{
+		MADERA_HPDET_MAX_HOHM,
+		cs47l15_high_impedance_patch,
+		ARRAY_SIZE(cs47l15_high_impedance_patch),
+	},
 };
 
 static const struct reg_sequence cs47l35_low_impedance_patch[] = {
@@ -648,7 +776,10 @@ static void madera_extcon_hp_clamp(struct madera_extcon *info, bool clamp)
 	snd_soc_dapm_mutex_lock(madera->dapm);
 
 	switch (madera->type) {
+	case CS47L15:
 	case CS47L35:
+	case CS47L92:
+	case CS47L93:
 		/*
 		 * check whether audio is routed to EPOUT, do not disable OUT1
 		 * in that case
@@ -738,18 +869,22 @@ static void madera_extcon_hp_clamp(struct madera_extcon *info, bool clamp)
 	}
 
 	/* Restore the desired state while not doing the clamp */
-	if (!clamp && (madera_hohm_to_ohm(madera->hp_impedance_x100[0]) >
-			info->pdata->hpdet_short_circuit_imp) && !ep_sel) {
-		ret = regmap_update_bits(madera->regmap,
-					 MADERA_OUTPUT_ENABLES_1,
-					 (MADERA_OUT1L_ENA |
-					  MADERA_OUT1R_ENA) <<
-					 (2 * (info->pdata->output - 1)),
-					 madera->hp_ena);
-		if (ret)
-			dev_warn(info->dev,
-				 "Failed to restore headphone outputs: %d\n",
-				 ret);
+	if (!clamp) {
+		madera->out_shorted[0] = (madera->hp_impedance_x100[0] <=
+					  info->hpdet_short_x100);
+
+		if (!madera->out_shorted[0] && !ep_sel) {
+			ret = regmap_update_bits(madera->regmap,
+						 MADERA_OUTPUT_ENABLES_1,
+						 (MADERA_OUT1L_ENA |
+						  MADERA_OUT1R_ENA) <<
+						 (2 * (info->pdata->output - 1)),
+						 madera->hp_ena);
+			if (ret)
+				dev_warn(info->dev,
+					 "Failed to restore headphone outputs: %d\n",
+					 ret);
+		}
 	}
 
 	snd_soc_dapm_mutex_unlock(madera->dapm);
@@ -761,6 +896,16 @@ static const char *madera_extcon_get_micbias_src(struct madera_extcon *info)
 	unsigned int bias = info->micd_modes[info->micd_mode].bias;
 
 	switch (madera->type) {
+	case CS47L15:
+		switch (bias) {
+		case 0:
+		case 1:
+		case 2:
+			return "MICBIAS1";
+		default:
+			return "MICVDD";
+		}
+		break;
 	case CS47L35:
 	case CS47L85:
 	case WM1840:
@@ -782,6 +927,21 @@ static const char *madera_extcon_get_micbias_src(struct madera_extcon *info)
 			return "MICVDD";
 		}
 		break;
+	case CS47L92:
+	case CS47L93:
+		switch (bias) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			return "MICBIAS1";
+		case 4:
+		case 5:
+			return "MICBIAS2";
+		default:
+			return "MICVDD";
+		}
+		break;
 	default:
 		return NULL;
 	}
@@ -793,6 +953,17 @@ static const char *madera_extcon_get_micbias(struct madera_extcon *info)
 	unsigned int bias = info->micd_modes[info->micd_mode].bias;
 
 	switch (madera->type) {
+	case CS47L15:
+		switch (bias) {
+		case 0:
+			return "MICBIAS1A";
+		case 1:
+			return "MICBIAS1B";
+		case 2:
+			return "MICBIAS1C";
+		default:
+			return "MICVDD";
+		}
 	case CS47L35:
 		switch (bias) {
 		case 1:
@@ -837,6 +1008,24 @@ static const char *madera_extcon_get_micbias(struct madera_extcon *info)
 			return "MICBIAS2C";
 		case 7:
 			return "MICBIAS2D";
+		default:
+			return "MICVDD";
+		}
+	case CS47L92:
+	case CS47L93:
+		switch (bias) {
+		case 0:
+			return "MICBIAS1A";
+		case 1:
+			return "MICBIAS1B";
+		case 2:
+			return "MICBIAS1C";
+		case 3:
+			return "MICBIAS1D";
+		case 4:
+			return "MICBIAS2A";
+		case 5:
+			return "MICBIAS2B";
 		default:
 			return "MICVDD";
 		}
@@ -956,12 +1145,9 @@ static void madera_extcon_set_mode(struct madera_extcon *info, int mode)
 		info->micd_modes[mode].bias, info->micd_modes[mode].gpio,
 		info->micd_modes[mode].hp_gnd);
 
-	if (info->micd_pol_gpio[0] > 0)
-		gpiod_set_value_cansleep(info->micd_pol_gpio[0],
-					info->micd_modes[mode].gpio);
-	if (info->micd_pol_gpio[1] > 0)
-		gpiod_set_value_cansleep(info->micd_pol_gpio[1],
-					!info->micd_modes[mode].gpio);
+	if (info->micd_pol_gpio)
+		gpiod_set_value_cansleep(info->micd_pol_gpio,
+					 info->micd_modes[mode].gpio);
 
 	switch (madera->type) {
 	case CS47L35:
@@ -1083,7 +1269,7 @@ static int madera_micd_read(struct madera_extcon *info)
 			return ret;
 		}
 
-		dev_info(info->dev, "MICDET: 0x%x\n", val);
+		dev_dbg(info->dev, "MICDET: 0x%x\n", val);
 
 		if (!(val & MADERA_MICD_VALID)) {
 			dev_warn(info->dev,
@@ -1330,11 +1516,14 @@ static int madera_tune_headphone(struct madera_extcon *info, int reading)
 {
 	struct madera *madera = info->madera;
 	const struct madera_hp_tuning *tuning;
-	unsigned int short_imp = info->pdata->hpdet_short_circuit_imp;
 	int n_tunings;
 	int i, ret;
 
 	switch (madera->type) {
+	case CS47L15:
+		tuning = cs47l15_hp_tuning;
+		n_tunings = ARRAY_SIZE(cs47l15_hp_tuning);
+		break;
 	case CS47L35:
 		tuning = cs47l35_hp_tuning;
 		n_tunings = ARRAY_SIZE(cs47l35_hp_tuning);
@@ -1349,11 +1538,16 @@ static int madera_tune_headphone(struct madera_extcon *info, int reading)
 		tuning = cs47l90_hp_tuning;
 		n_tunings = ARRAY_SIZE(cs47l90_hp_tuning);
 		break;
+	case CS47L92:
+	case CS47L93:
+		tuning = cs47l92_hp_tuning;
+		n_tunings = ARRAY_SIZE(cs47l92_hp_tuning);
+		break;
 	default:
 		return 0;
 	}
 
-	if (reading <= madera_ohm_to_hohm(short_imp)) {
+	if (reading <= info->hpdet_short_x100) {
 		/* Headphones are always off here so just mark them */
 		dev_warn(info->dev, "Possible HP short, disabling\n");
 		return 0;
@@ -1804,7 +1998,7 @@ static int madera_micd_button_process(struct madera_extcon *info, int val)
 	int i, key;
 
 	if (val < MADERA_MICROPHONE_MIN_OHM) {
-		dev_info(info->dev, "Mic button detected\n");
+		dev_dbg(info->dev, "Mic button detected\n");
 
 		for (i = 0; i < info->num_micd_ranges; i++)
 			input_report_key(info->input,
@@ -1911,8 +2105,7 @@ int madera_micd_mic_reading(struct madera_extcon *info, int val)
 	 * plain headphones.  If both polarities report a low
 	 * impedence then give up and report headphones.
 	 */
-	if (((info->micd_ranges[0].max > MADERA_MICD_WRONG_POLARITY) ||
-	    (ohms > info->micd_ranges[0].max)) &&
+	if (ohms > info->micd_ranges[0].max &&
 	    info->num_micd_modes > 1) {
 		if (info->jack_flips >= info->num_micd_modes * 10) {
 			dev_dbg(info->dev, "Detected HP/line\n");
@@ -1986,7 +2179,7 @@ static int madera_jack_present(struct madera_extcon *info,
 		return ret;
 	}
 
-	dev_info(info->dev, "IRQ1_RAW_STATUS_7=0x%x\n", val);
+	dev_dbg(info->dev, "IRQ1_RAW_STATUS_7=0x%x\n", val);
 
 	if (info->pdata->jd_use_jd2) {
 		val &= MADERA_MICD_CLAMP_RISE_STS1;
@@ -2094,9 +2287,12 @@ static void madera_micd_handler(struct work_struct *work)
 	if (ret == -EAGAIN)
 		goto out;
 
-	dev_info(info->dev, "Mic impedance %d ohms\n", ret);
+	if (ret >= 0) {
+		dev_info(info->dev, "Mic impedance %d ohms\n", ret);
+		ret = madera_ohm_to_hohm((unsigned int)ret);
+	}
 
-	madera_jds_reading(info, madera_ohm_to_hohm((unsigned int)ret));
+	madera_jds_reading(info, ret);
 
 out:
 	madera_jds_start_timeout(info);
@@ -2233,9 +2429,6 @@ static irqreturn_t madera_jackdet(int irq, void *data)
 		info->have_mic = false;
 		info->jack_flips = 0;
 
-		if (info->pdata->init_mic_delay_ms)
-			msleep(info->pdata->init_mic_delay_ms);
-
 		if (info->pdata->custom_jd)
 			madera_jds_set_state(info, info->pdata->custom_jd);
 		else if (info->pdata->micd_software_compare)
@@ -2299,6 +2492,47 @@ static void madera_micd_set_level(struct madera *madera, int index,
 
 	/* Program the level itself */
 	regmap_update_bits(madera->regmap, reg, mask, level);
+}
+
+static void madera_extcon_of_get_micd_ranges(struct madera_extcon *info,
+					    struct fwnode_handle *node,
+					    struct madera_accdet_pdata *pdata)
+{
+	struct madera_micd_range *micd_ranges;
+	u32 *values;
+	int nvalues, nranges, i, j;
+	int ret;
+
+	nvalues = fwnode_property_read_u32_array(node, "cirrus,micd-ranges",
+						 NULL, 0);
+	if (nvalues < 0)
+		return;
+
+	values = kmalloc_array(nvalues, sizeof(u32), GFP_KERNEL);
+	if (!values)
+		return;
+
+	ret = fwnode_property_read_u32_array(node, "cirrus,micd-ranges",
+					     values, nvalues);
+	if (ret < 0)
+		goto err;
+
+	nranges = nvalues / 2;
+	micd_ranges = devm_kcalloc(info->dev,
+				   nranges,
+				   sizeof(struct madera_micd_range),
+				   GFP_KERNEL);
+
+	for (i = 0, j = 0; i < nranges; ++i) {
+		micd_ranges[i].max = values[j++];
+		micd_ranges[i].key = values[j++];
+	}
+
+	pdata->micd_ranges = micd_ranges;
+	pdata->num_micd_ranges = nranges;
+
+err:
+	kfree(values);
 }
 
 static void madera_extcon_get_micd_configs(struct madera_extcon *info,
@@ -2382,51 +2616,6 @@ static void madera_extcon_get_hpd_pins(struct madera_extcon *info,
 			pdata->hpd_pins[i] = madera_default_hpd_pins[i];
 }
 
-static bool madera_extcon_usbc_audio_connected(struct madera_extcon *info)
-{
-	union power_supply_propval prop = {0,};
-	int ret;
-
-	if (!info->usb_psy)
-		return false;
-
-	ret = power_supply_get_property(info->usb_psy,
-			POWER_SUPPLY_PROP_TYPEC_MODE, &prop);
-	if (ret < 0)
-		dev_err(info->dev, "Unable to get USB Type\n");
-	return (prop.intval == POWER_SUPPLY_TYPEC_SINK_AUDIO_ADAPTER);
-}
-
-static void madera_handle_usbc_audio(struct madera_extcon *info, bool connected)
-{
-	dev_err(info->dev, "Type-C Audio Adapter %sconnected\n",
-					connected ? "" : "dis");
-	if (info->usbc_det_gpio[0] > 0 && info->usbc_det_gpio[1] > 0) {
-		gpiod_set_value(info->usbc_det_gpio[0], connected);
-		gpiod_set_value(info->usbc_det_gpio[1], connected);
-	}
-
-	info->usbc_connected = connected;
-}
-
-static int madera_psy_notifier(struct notifier_block *nb, unsigned long evt, void *ptr)
-{
-	struct madera_extcon *info = container_of(nb, struct madera_extcon, psy_nb);
-	struct power_supply *psy = ptr;
-	bool usbc_audio_connected = false;
-
-	if (evt != PSY_EVENT_PROP_CHANGED || strcmp(psy->desc->name, "usb") ||
-		(psy->desc->type != POWER_SUPPLY_TYPE_USB &&
-		psy->desc->type != POWER_SUPPLY_TYPE_USB_PD))
-		return 0;
-
-	usbc_audio_connected = madera_extcon_usbc_audio_connected(info);
-	if (info->usbc_connected == usbc_audio_connected)
-		return NOTIFY_OK;
-	madera_handle_usbc_audio(info, usbc_audio_connected);
-	return NOTIFY_OK;
-}
-
 static void madera_extcon_process_accdet_node(struct madera_extcon *info,
 					      struct fwnode_handle *node)
 {
@@ -2434,6 +2623,7 @@ static void madera_extcon_process_accdet_node(struct madera_extcon *info,
 	struct madera_accdet_pdata *pdata;
 	u32 out_num;
 	int i, ret;
+	enum gpiod_flags gpio_status;
 
 	ret = fwnode_property_read_u32(node, "reg", &out_num);
 	if (ret < 0) {
@@ -2462,9 +2652,6 @@ static void madera_extcon_process_accdet_node(struct madera_extcon *info,
 	pdata = &madera->pdata.accdet[i];
 	pdata->enabled = true;	/* implied by presence of properties node */
 	pdata->output = out_num;
-
-	fwnode_property_read_u32(node, "cirrus,init-mic-delay-ms",
-				 &pdata->init_mic_delay_ms);
 
 	fwnode_property_read_u32(node, "cirrus,micd-detect-debounce-ms",
 				 &pdata->micd_detect_debounce_ms);
@@ -2522,68 +2709,23 @@ static void madera_extcon_process_accdet_node(struct madera_extcon *info,
 
 	madera_extcon_get_hpd_pins(info, node, pdata);
 	madera_extcon_get_micd_configs(info, node, pdata);
+	madera_extcon_of_get_micd_ranges(info, node, pdata);
 
-	info->micd_pol_gpio[0] = devm_get_gpiod_from_child(madera->dev,
+	if (info->micd_modes[0].gpio)
+		gpio_status = GPIOD_OUT_HIGH;
+	else
+		gpio_status = GPIOD_OUT_LOW;
+
+	info->micd_pol_gpio = devm_fwnode_get_gpiod_from_child(info->dev,
 							"cirrus,micd-pol",
-							node);
-	if (IS_ERR(info->micd_pol_gpio[0])) {
+							node,
+							gpio_status,
+							"cirrus,micd-pol");
+	if (IS_ERR(info->micd_pol_gpio)) {
 		dev_warn(info->dev,
 			 "Malformed cirrus,micd-pol-gpios ignored: %ld\n",
-			 PTR_ERR(info->micd_pol_gpio[0]));
-		info->micd_pol_gpio[0] = 0;
-	}
-	info->micd_pol_gpio[1] = devm_get_gpiod_from_child(madera->dev,
-							"cirrus,micd-pol-alt",
-							node);
-	if (IS_ERR(info->micd_pol_gpio[1]))
-		info->micd_pol_gpio[1] = 0;
-
-	info->usbc_headset_support  = fwnode_property_present(node,
-						    "cirrus,usbc-headset");
-	if (info->usbc_headset_support) {
-		info->usbc_connected = false;
-		info->usbc_det_gpio[0] = devm_get_gpiod_from_child(madera->dev,
-								"cirrus,usbsel",
-								node);
-		if (IS_ERR(info->usbc_det_gpio[0]))
-			info->usbc_det_gpio[0] = 0;
-		else {
-			ret = gpio_export(desc_to_gpio(info->usbc_det_gpio[0]),
-					true);
-			if (ret < 0) {
-				dev_err(info->dev,
-					"Failed to export usbsel gpio\n");
-			} else {
-				ret = gpio_export_link(info->dev,
-						"usbsel",
-						desc_to_gpio(info->usbc_det_gpio[0]));
-				if (ret < 0)
-					dev_err(info->dev,
-						"Failed to create usbsel symlink\n");
-			}
-		}
-
-		info->usbc_det_gpio[1] = devm_get_gpiod_from_child(madera->dev,
-								"cirrus,hsdet",
-								node);
-		if (IS_ERR(info->usbc_det_gpio[1]))
-			info->usbc_det_gpio[1] = 0;
-		else {
-			ret = gpio_export(desc_to_gpio(info->usbc_det_gpio[1]),
-					true);
-			if (ret < 0) {
-				dev_err(info->dev,
-					"Failed to export hsdet gpio\n");
-			} else {
-				ret = gpio_export_link(info->dev,
-						"hsdet",
-						desc_to_gpio(info->usbc_det_gpio[1]));
-				if (ret < 0)
-					dev_err(info->dev,
-						"Failed to create hsdet symlink\n");
-			}
-		}
-
+			 PTR_ERR(info->micd_pol_gpio));
+		info->micd_pol_gpio = NULL;
 	}
 }
 
@@ -2652,15 +2794,11 @@ static void madera_extcon_dump_config(struct madera_extcon *info)
 		MADERA_EXTCON_PDATA_DUMP(micd_open_circuit_declare, "%u");
 		MADERA_EXTCON_PDATA_DUMP(micd_software_compare, "%u");
 
-		if (info->micd_pol_gpio[0] > 0)
+		if (info->micd_pol_gpio)
 			dev_dbg(info->dev, "micd_pol_gpio: %d\n",
-				desc_to_gpio(info->micd_pol_gpio[0]));
+				desc_to_gpio(info->micd_pol_gpio));
 		else
-			dev_dbg(info->dev, "micd_pol_gpio: 0\n");
-
-		if (info->micd_pol_gpio[1] > 0)
-			dev_dbg(info->dev, "micd_pol_gpio-alt: %d\n",
-				desc_to_gpio(info->micd_pol_gpio[1]));
+			dev_dbg(info->dev, "micd_pol_gpio: unused\n");
 
 		dev_dbg(info->dev, "\tmicd_ranges {\n");
 		for (j = 0; j < info->num_micd_ranges; ++j)
@@ -2936,7 +3074,7 @@ static int madera_extcon_probe(struct platform_device *pdev)
 	struct madera_extcon *info;
 	unsigned int debounce_val, analog_val;
 	int jack_irq_fall, jack_irq_rise;
-	int ret, mode, i, hpdet_short;
+	int ret, mode, i, hpdet_short_measured;
 
 	/* quick exit if Madera irqchip driver hasn't completed probe */
 	if (!madera->irq_dev) {
@@ -2961,6 +3099,13 @@ static int madera_extcon_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, info);
 
 	switch (madera->type) {
+	case CS47L15:
+		info->hpdet_init_range = 1; /* range 0 not used on CS47L15 */
+		info->hpdet_ranges = cs47l15_hpdet_ranges;
+		info->num_hpdet_ranges = ARRAY_SIZE(cs47l15_hpdet_ranges);
+		info->micd_modes = madera_micd_default_modes;
+		info->num_micd_modes = ARRAY_SIZE(madera_micd_default_modes);
+		break;
 	case CS47L35:
 		pdata->micd_force_micbias = true;
 		info->hpdet_ranges = cs47l85_hpdet_ranges;
@@ -2974,6 +3119,13 @@ static int madera_extcon_probe(struct platform_device *pdev)
 		info->num_hpdet_ranges = ARRAY_SIZE(cs47l85_hpdet_ranges);
 		info->micd_modes = cs47l85_micd_default_modes;
 		info->num_micd_modes = ARRAY_SIZE(cs47l85_micd_default_modes);
+		break;
+	case CS47L92:
+	case CS47L93:
+		info->hpdet_ranges = cs47l92_hpdet_ranges;
+		info->num_hpdet_ranges = ARRAY_SIZE(cs47l92_hpdet_ranges);
+		info->micd_modes = madera_micd_default_modes;
+		info->num_micd_modes = ARRAY_SIZE(madera_micd_default_modes);
 		break;
 	default:
 		info->hpdet_ranges = madera_hpdet_ranges;
@@ -3006,8 +3158,7 @@ static int madera_extcon_probe(struct platform_device *pdev)
 			return ret;
 		}
 
-		info->micd_pol_gpio[0] = gpio_to_desc(pdata->micd_pol_gpio);
-		info->micd_pol_gpio[1] = 0;
+		info->micd_pol_gpio = gpio_to_desc(pdata->micd_pol_gpio);
 	} else {
 		ret = madera_extcon_get_device_pdata(info);
 		if (ret < 0)
@@ -3017,15 +3168,26 @@ static int madera_extcon_probe(struct platform_device *pdev)
 	if (!pdata->enabled || pdata->output == 0)
 		return -ENODEV; /* no accdet output configured */
 
-	hpdet_short = pdata->hpdet_short_circuit_imp +
-		      madera_hohm_to_ohm(pdata->hpdet_ext_res_x100);
+	info->hpdet_short_x100 =
+		madera_ohm_to_hohm(pdata->hpdet_short_circuit_imp);
 
-	if (hpdet_short < MADERA_HP_SHORT_IMPEDANCE_MIN) {
+	/* Actual measured short is increased by external resistance */
+	hpdet_short_measured = pdata->hpdet_short_circuit_imp +
+			       madera_hohm_to_ohm(pdata->hpdet_ext_res_x100);
+
+	if (hpdet_short_measured < MADERA_HP_SHORT_IMPEDANCE_MIN) {
+		/*
+		 * increase comparison threshold to minimum we can measure
+		 * taking into account that threshold does not include external
+		 * resistance
+		 */
+		info->hpdet_short_x100 =
+			madera_ohm_to_hohm(MADERA_HP_SHORT_IMPEDANCE_MIN) -
+			pdata->hpdet_ext_res_x100;
 		dev_warn(info->dev,
 			 "Increasing HP short circuit impedance from %d to %d\n",
 			 pdata->hpdet_short_circuit_imp,
-			 MADERA_HP_SHORT_IMPEDANCE_MIN);
-		pdata->hpdet_short_circuit_imp = MADERA_HP_SHORT_IMPEDANCE_MIN;
+			 madera_hohm_to_ohm(info->hpdet_short_x100));
 	}
 
 	info->micvdd = devm_regulator_get(&pdev->dev, "MICVDD");
@@ -3074,6 +3236,8 @@ static int madera_extcon_probe(struct platform_device *pdev)
 	switch (madera->type) {
 	case CS47L90:
 	case CS47L91:
+	case CS47L92:
+	case CS47L93:
 		if (madera->pdata.gpsw[1] > 0)
 			regmap_update_bits(madera->regmap,
 					   MADERA_GP_SWITCH_1,
@@ -3147,10 +3311,18 @@ static int madera_extcon_probe(struct platform_device *pdev)
 		default:
 			break;
 		}
+	} else {
+		switch (madera->type) {
+		case CS47L15:
+			pdata->hpdet_ext_res_x100 += 3300;
+			break;
+		default:
+			break;
+		}
 	}
 
 	/* Skip any HPDET ranges less than the external resistance */
-	for (i = 0; i < info->num_hpdet_ranges; ++i) {
+	for (i = info->hpdet_init_range; i < info->num_hpdet_ranges; ++i) {
 		if (madera_ohm_to_hohm(info->hpdet_ranges[i].max) >=
 		    pdata->hpdet_ext_res_x100) {
 			info->hpdet_init_range = i;
@@ -3164,6 +3336,11 @@ static int madera_extcon_probe(struct platform_device *pdev)
 			pdata->hpdet_ext_res_x100 % 100);
 		goto err_input;
 	}
+
+	regmap_update_bits(madera->regmap, MADERA_HEADPHONE_DETECT_1,
+			   MADERA_HP_IMPEDANCE_RANGE_MASK,
+			   info->hpdet_init_range <<
+			   MADERA_HP_IMPEDANCE_RANGE_SHIFT);
 
 	ret = madera_request_irq(madera, MADERA_IRQ_MICDET1,
 				 "MICDET", madera_micdet, info);
@@ -3261,13 +3438,6 @@ static int madera_extcon_probe(struct platform_device *pdev)
 
 	madera_extcon_dump_config(info);
 
-	if (info->usbc_headset_support) {
-		info->psy_nb.notifier_call = madera_psy_notifier;
-		power_supply_reg_notifier(&info->psy_nb);
-		info->usb_psy = power_supply_get_by_name("usb");
-		madera_handle_usbc_audio(info, madera_extcon_usbc_audio_connected(info));
-	}
-
 	return 0;
 
 err_fall_wake:
@@ -3299,12 +3469,6 @@ static int madera_extcon_remove(struct platform_device *pdev)
 
 	regmap_update_bits(madera->regmap, MADERA_MICD_CLAMP_CONTROL,
 			   MADERA_MICD_CLAMP_MODE_MASK, 0);
-
-	if (info->usbc_headset_support) {
-		power_supply_unreg_notifier(&info->psy_nb);
-		if (info->usb_psy)
-			power_supply_put(info->usb_psy);
-	}
 
 	if (info->pdata->jd_use_jd2) {
 		jack_irq_rise = MADERA_IRQ_MICD_CLAMP_RISE;

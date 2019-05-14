@@ -1,0 +1,25 @@
+# add -Wall to try to catch everything we can.
+EXTRA_CFLAGS += -Wall
+EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
+EXTRA_CFLAGS += -I$(TOP)/kernel/msm-4.14/include
+EXTRA_CFLAGS += -I$(TOP)/kernel/msm-4.14/drivers/pinctrl
+EXTRA_CFLAGS += -DCONFIG_PINCTRL_CS47L35
+
+madera-pinctrl-objs = pinctrl-madera.o pinctrl-cs47l35.o
+obj-m += madera-pinctrl.o
+
+cirrus_pinctrl-tacna-objs = pinctrl-tacna.o
+
+ifneq ($(filter m y,$(CONFIG_PINCTRL_CS47L96)),)
+    EXTRA_CFLAGS += -DCONFIG_PINCTRL_CS47L96
+endif
+
+ifneq ($(filter m y,$(CONFIG_PINCTRL_CS48L32)),)
+    EXTRA_CFLAGS += -DCONFIG_PINCTRL_CS48L32
+endif
+
+ifneq ($(filter m y,$(CONFIG_PINCTRL_CS48LX50)),)
+    EXTRA_CFLAGS += -DCONFIG_PINCTRL_CS48LX50
+endif
+
+obj-m += cirrus_pinctrl-tacna.o

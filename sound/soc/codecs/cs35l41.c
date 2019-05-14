@@ -243,12 +243,14 @@ static SOC_ENUM_SINGLE_DECL(pcm_sft_ramp,
 			    cs35l41_pcm_sftramp_text);
 
 static const char * const cs35l41_cspl_cmd_text[] = {
+	"CSPL_MBOX_CMD_PAUSE",
 	"CSPL_MBOX_CMD_RESUME",
 	"CSPL_MBOX_CMD_REINIT",
 	"CSPL_MBOX_CMD_STOP_PRE_REINIT",
 };
 
 static const unsigned int cs35l41_cspl_cmd_val[] = {
+	(unsigned int)CSPL_MBOX_CMD_PAUSE,
 	(unsigned int)CSPL_MBOX_CMD_RESUME,
 	(unsigned int)CSPL_MBOX_CMD_REINIT,
 	(unsigned int)CSPL_MBOX_CMD_STOP_PRE_REINIT,
@@ -295,7 +297,6 @@ static int cs35l41_set_csplmboxcmd(struct cs35l41_private *cs35l41,
 	/*
 	 * Set mailbox cmd
 	 */
-
 	/* Unmask DSP INT */
 	regmap_update_bits(cs35l41->regmap, CS35L41_IRQ2_MASK2,
 			   1 << CS35L41_CSPL_MBOX_CMD_DRV_SHIFT, 0);
@@ -304,7 +305,11 @@ static int cs35l41_set_csplmboxcmd(struct cs35l41_private *cs35l41,
 	/* Poll for DSP ACK */
 	for (i = 0; i < 5; i++) {
 		usleep_range(1000, 1010);
-		regmap_read(cs35l41->regmap, CS35L41_IRQ1_STATUS2, &sts);
+		ret = regmap_read(cs35l41->regmap, CS35L41_IRQ1_STATUS2, &sts);
+		if (ret < 0) {
+			dev_err(cs35l41->dev, "regmap_read failed (%d)\n", ret);
+			continue;
+		}
 		if (sts & (1 << CS35L41_CSPL_MBOX_CMD_FW_SHIFT)) {
 			dev_dbg(cs35l41->dev,
 				"%u: Received ACK in EINT for mbox cmd (%d)\n",
@@ -542,7 +547,7 @@ static const struct cs35l41_otp_map_element_t *cs35l41_find_otp_map(u32 otp_id)
 static int cs35l41_otp_unpack(void *data)
 {
 	struct cs35l41_private *cs35l41 = data;
-	u32 otp_mem[32];
+	u32 *otp_mem;
 	int i;
 	int bit_offset, word_offset;
 	unsigned int bit_sum = 8;
@@ -553,10 +558,15 @@ static int cs35l41_otp_unpack(void *data)
 	struct spi_device *spi = NULL;
 	u32 orig_spi_freq = 0;
 
+	otp_mem = kmalloc_array(32, sizeof(*otp_mem), GFP_KERNEL);
+	if (!otp_mem)
+		return -ENOMEM;
+
 	ret = regmap_read(cs35l41->regmap, CS35L41_OTPID, &otp_id_reg);
 	if (ret < 0) {
 		dev_err(cs35l41->dev, "Read OTP ID failed\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_otp_unpack;
 	}
 
 	otp_map_match = cs35l41_find_otp_map(otp_id_reg);
@@ -564,7 +574,8 @@ static int cs35l41_otp_unpack(void *data)
 	if (otp_map_match == NULL) {
 		dev_err(cs35l41->dev, "OTP Map matching ID %d not found\n",
 				otp_id_reg);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_otp_unpack;
 	}
 
 	if (cs35l41->bus_spi) {
@@ -578,7 +589,8 @@ static int cs35l41_otp_unpack(void *data)
 						CS35L41_OTP_SIZE_WORDS);
 	if (ret < 0) {
 		dev_err(cs35l41->dev, "Read OTP Mem failed\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_otp_unpack;
 	}
 
 	if (cs35l41->bus_spi) {
@@ -594,12 +606,14 @@ static int cs35l41_otp_unpack(void *data)
 	ret = regmap_write(cs35l41->regmap, CS35L41_TEST_KEY_CTL, 0x00000055);
 	if (ret < 0) {
 		dev_err(cs35l41->dev, "Write Unlock key failed 1/2\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_otp_unpack;
 	}
 	ret = regmap_write(cs35l41->regmap, CS35L41_TEST_KEY_CTL, 0x000000AA);
 	if (ret < 0) {
 		dev_err(cs35l41->dev, "Write Unlock key failed 2/2\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_otp_unpack;
 	}
 
 	for (i = 0; i < otp_map_match->num_elements; i++) {
@@ -637,7 +651,8 @@ static int cs35l41_otp_unpack(void *data)
 						otp_val << otp_map[i].shift);
 			if (ret < 0) {
 				dev_err(cs35l41->dev, "Write OTP val failed\n");
-				return -EINVAL;
+				ret = -EINVAL;
+				goto err_otp_unpack;
 			}
 		}
 	}
@@ -645,15 +660,21 @@ static int cs35l41_otp_unpack(void *data)
 	ret = regmap_write(cs35l41->regmap, CS35L41_TEST_KEY_CTL, 0x000000CC);
 	if (ret < 0) {
 		dev_err(cs35l41->dev, "Write Lock key failed 1/2\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_otp_unpack;
 	}
 	ret = regmap_write(cs35l41->regmap, CS35L41_TEST_KEY_CTL, 0x00000033);
 	if (ret < 0) {
 		dev_err(cs35l41->dev, "Write Lock key failed 2/2\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_otp_unpack;
 	}
+	ret = 0;
 
-	return 0;
+err_otp_unpack:
+	kfree(otp_mem);
+
+	return ret;
 }
 
 static irqreturn_t cs35l41_irq(int irq, void *data)
@@ -1852,7 +1873,6 @@ static int cs35l41_dsp_init(struct cs35l41_private *cs35l41)
 	dsp->rev = 0;
 	dsp->dev = cs35l41->dev;
 	dsp->regmap = cs35l41->regmap;
-	dsp->suffix = "";
 
 	dsp->base = CS35L41_DSP1_CTRL_BASE;
 	dsp->base_sysinfo = CS35L41_DSP1_SYS_ID;
