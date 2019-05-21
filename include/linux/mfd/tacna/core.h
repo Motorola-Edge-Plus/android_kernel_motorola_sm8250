@@ -75,8 +75,6 @@ struct tacna {
 	bool hpdet_shorted[TACNA_MAX_ACCESSORY];
 	unsigned int hp_ena;
 	unsigned int hp_impedance_x100[TACNA_MAX_ACCESSORY];
-	
-	int power_en_gpio;
 
 	struct tacna_extcon_info *extcon_info;
 

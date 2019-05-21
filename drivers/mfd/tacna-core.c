@@ -711,6 +711,7 @@ int tacna_dev_init(struct tacna *tacna)
 		dev_err(dev, "Failed to enable core supplies: %d\n", ret);
 		goto err_pinctrl;
 	}
+
 	ret = regulator_enable(tacna->vdd_d);
 	if (ret) {
 		dev_err(dev, "Failed to enable VDD_D: %d\n", ret);

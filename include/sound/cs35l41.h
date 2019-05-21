@@ -61,7 +61,7 @@ struct cs35l41_private {
 	int extclk_freq;
 	int extclk_cfg;
 	int sclk;
-	unsigned int cspl_cmd;
+	bool reload_tuning;
 	unsigned int gpi_glob_en;
 	bool dspa_mode;
 	bool i2s_mode;
@@ -69,11 +69,14 @@ struct cs35l41_private {
 	bool halo_booted;
 	bool enabled;
 	bool bus_spi;
+	bool fast_switch_en;
 	struct mutex rate_lock;
 	/* GPIO for /RST */
 	struct gpio_desc *reset_gpio;
-	struct completion global_pup_done;
-	struct completion global_pdn_done;
+	/* Run-time mixer */
+	unsigned int fast_switch_file_idx;
+	struct soc_enum fast_switch_enum;
+	const char **fast_switch_names;
 };
 
 int cs35l41_probe(struct cs35l41_private *cs35l41,

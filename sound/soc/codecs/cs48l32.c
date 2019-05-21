@@ -595,7 +595,6 @@ TACNA_MIXER_CONTROLS("DSP1RX5", TACNA_DSP1RX5_INPUT1),
 TACNA_MIXER_CONTROLS("DSP1RX6", TACNA_DSP1RX6_INPUT1),
 TACNA_MIXER_CONTROLS("DSP1RX7", TACNA_DSP1RX7_INPUT1),
 TACNA_MIXER_CONTROLS("DSP1RX8", TACNA_DSP1RX8_INPUT1),
-
 };
 
 TACNA_MIXER_ENUMS(EQ1, TACNA_EQ1_INPUT1);
@@ -1080,6 +1079,8 @@ static const struct snd_soc_dapm_route cs48l32_dapm_routes[] = {
 	{ "Audio Trace DSP", NULL, "DSP1" },
 	{ "Voice Ctrl DSP", NULL, "DSP1" },
 	{ "Voice Ctrl 2 DSP", NULL, "DSP1" },
+	{ "Voice Ctrl 3 DSP", NULL, "DSP1" },
+	{ "Text Log DSP", NULL, "DSP1" },
 
 	{ "MICBIAS1", NULL, "VOUT_MIC" },
 
@@ -1380,6 +1381,48 @@ static struct snd_soc_dai_driver cs48l32_dai[] = {
 			.formats = TACNA_FORMATS,
 		},
 	},
+	{
+		.name = "cs48l32-cpu-voicectrl3",
+		.capture = {
+			.stream_name = "Voice Ctrl 3 CPU",
+			.channels_min = 1,
+			.channels_max = 8,
+			.rates = TACNA_RATES,
+			.formats = TACNA_FORMATS,
+		},
+		.compress_new = &snd_soc_new_compress,
+	},
+	{
+		.name = "cs48l32-dsp-voicectrl3",
+		.capture = {
+			.stream_name = "Voice Ctrl 3 DSP",
+			.channels_min = 1,
+			.channels_max = 8,
+			.rates = TACNA_RATES,
+			.formats = TACNA_FORMATS,
+		},
+	},
+	{
+		.name = "cs48l32-cpu-textlog",
+		.capture = {
+			.stream_name = "Text Log CPU",
+			.channels_min = 1,
+			.channels_max = 8,
+			.rates = TACNA_RATES,
+			.formats = TACNA_FORMATS,
+		},
+		.compress_new = &snd_soc_new_compress,
+	},
+	{
+		.name = "cs48l32-dsp-textlog",
+		.capture = {
+			.stream_name = "Text Log DSP",
+			.channels_min = 1,
+			.channels_max = 8,
+			.rates = TACNA_RATES,
+			.formats = TACNA_FORMATS,
+		},
+	},
 };
 
 static int cs48l32_compr_open(struct snd_compr_stream *stream)
@@ -1390,14 +1433,16 @@ static int cs48l32_compr_open(struct snd_compr_stream *stream)
 
 	if (strcmp(rtd->codec_dai->name, "cs48l32-dsp-trace") &&
 	    strcmp(rtd->codec_dai->name, "cs48l32-dsp-voicectrl") &&
-	    strcmp(rtd->codec_dai->name, "cs48l32-dsp-voicectrl2")) {
+	    strcmp(rtd->codec_dai->name, "cs48l32-dsp-voicectrl2") &&
+	    strcmp(rtd->codec_dai->name, "cs48l32-dsp-voicectrl3") &&
+	    strcmp(rtd->codec_dai->name, "cs48l32-dsp-textlog")) {
 		dev_err(priv->dev,
 			"No suitable compressed stream for DAI '%s'\n",
 			rtd->codec_dai->name);
 		return -EINVAL;
 	}
 
-	return wm_adsp_compr_open(&priv->dsp[0], stream, 0);
+	return wm_adsp_compr_open(&priv->dsp[0], stream);
 }
 
 static irqreturn_t cs48l32_dsp1_irq(int irq, void *data)
@@ -1406,7 +1451,7 @@ static irqreturn_t cs48l32_dsp1_irq(int irq, void *data)
 	struct tacna_priv *priv = &cs48l32->core;
 	int ret;
 
-	ret = wm_adsp_compr_handle_irq(&priv->dsp[0], 0);
+	ret = wm_adsp_compr_handle_irq(&priv->dsp[0]);
 	if (ret == -ENODEV) {
 		dev_err(priv->dev, "Spurious compressed data IRQ\n");
 		return IRQ_NONE;
@@ -1418,10 +1463,7 @@ static irqreturn_t cs48l32_dsp1_irq(int irq, void *data)
 static int cs48l32_codec_probe(struct snd_soc_codec *codec)
 {
 	struct cs48l32 *cs48l32 = snd_soc_codec_get_drvdata(codec);
-	struct tacna_priv *priv = &cs48l32->core;
 	int ret;
-
-	dev_dbg(priv->dev, "Enter %s\n", __func__);
 
 	cs48l32->core.tacna->dapm = snd_soc_codec_get_dapm(codec);
 

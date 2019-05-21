@@ -625,10 +625,9 @@ static void tacna_extcon_enable_micbias_pin(struct tacna_extcon *info,
 {
 	struct tacna *tacna = info->tacna;
 	struct snd_soc_dapm_context *dapm = tacna->dapm;
-	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
 	int ret;
 
-	ret = snd_soc_component_force_enable_pin(component, widget);
+	ret = snd_soc_dapm_force_enable_pin(dapm, widget);
 	if (ret)
 		dev_warn(info->dev, "Failed to enable %s: %d\n", widget, ret);
 
@@ -642,10 +641,9 @@ static void tacna_extcon_disable_micbias_pin(struct tacna_extcon *info,
 {
 	struct tacna *tacna = info->tacna;
 	struct snd_soc_dapm_context *dapm = tacna->dapm;
-	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
 	int ret;
 
-	ret = snd_soc_component_disable_pin(component, widget);
+	ret = snd_soc_dapm_disable_pin(dapm, widget);
 	if (ret)
 		dev_warn(info->dev, "Failed to enable %s: %d\n", widget, ret);
 
@@ -1909,7 +1907,6 @@ static void tacna_extcon_process_accdet_node(struct tacna_extcon *info,
 	struct tacna_accdet_pdata *pdata;
 	u32 out_num;
 	int i, ret;
-	enum gpiod_flags gpio_status;
 
 	ret = fwnode_property_read_u32(node, "reg", &out_num);
 	if (ret < 0) {
@@ -1986,18 +1983,13 @@ static void tacna_extcon_process_accdet_node(struct tacna_extcon *info,
 	tacna_extcon_get_hpd_pins(info, node, pdata);
 	tacna_extcon_get_micd_configs(info, node);
 
-	if (info->micd_modes[0].gpio)
-		gpio_status = GPIOD_OUT_HIGH;
-	else
-		gpio_status = GPIOD_OUT_LOW;
-
-	info->micd_pol_gpio = devm_fwnode_get_gpiod_from_child(tacna->dev,
+	info->micd_pol_gpio = devm_get_gpiod_from_child(info->dev,
 							"cirrus,micd-pol",
-							node,
-							gpio_status,
-							"cirrus,micd-pol");
+							node);
 	if (IS_ERR(info->micd_pol_gpio))
 		info->micd_pol_gpio = NULL;
+
+	gpiod_direction_output(info->micd_pol_gpio, info->micd_modes[0].gpio);
 }
 
 static void tacna_extcon_get_device_pdata(struct tacna_extcon *info)
