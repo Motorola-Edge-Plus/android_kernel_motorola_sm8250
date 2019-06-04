@@ -113,6 +113,7 @@ struct wm_adsp {
 	bool booted;
 	bool running;
 	bool fatal_error;
+	bool tuning_has_prefix;
 
 	int num_firmwares;
 	struct wm_adsp_fw_defs *firmwares;

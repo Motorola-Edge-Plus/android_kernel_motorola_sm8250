@@ -2876,6 +2876,10 @@ static int wm_adsp_load_coeff(struct wm_adsp *dsp)
 	else if (dsp->firmwares[dsp->fw].binfile)
 		snprintf(file, PAGE_SIZE, "%s-dsp%d-%s.bin", dsp->part,
 			 dsp->num, dsp->firmwares[dsp->fw].binfile);
+	else if (dsp->tuning_has_prefix && dsp->component->name_prefix)
+		snprintf(file, PAGE_SIZE, "%s-%s-dsp%d-%s.bin",
+			 dsp->component->name_prefix, dsp->part,
+			 dsp->num, dsp->firmwares[dsp->fw].file);
 	else
 		snprintf(file, PAGE_SIZE, "%s-dsp%d-%s.bin", dsp->part,
 			 dsp->num, dsp->firmwares[dsp->fw].file);
