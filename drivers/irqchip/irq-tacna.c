@@ -719,6 +719,8 @@ static int tacna_irq_probe(struct platform_device *pdev)
 		goto err_map_main_irq;
 	}
 
+	/* MMI_STOPSHIP force it to falling trigger to workaround power issue firstly*/
+	irq_flags = IRQF_TRIGGER_FALLING;
 	ret = request_threaded_irq(priv->irq, NULL, tacna_irq_thread,
 				   irq_flags | IRQF_ONESHOT, "tacna", priv);
 
