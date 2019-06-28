@@ -652,8 +652,7 @@ static int tacna_irq_probe(struct platform_device *pdev)
 	}
 
 	if (irq_flags & (IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING)) {
-		dev_err(priv->dev, "Host interrupt not level-triggered\n");
-		return -EINVAL;
+		dev_warn(priv->dev, "Host interrupt not level-triggered\n");
 	}
 
 	if (irq_flags & IRQF_TRIGGER_HIGH)
