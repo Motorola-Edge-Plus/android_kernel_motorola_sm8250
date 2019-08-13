@@ -11,7 +11,7 @@
 #include <linux/err.h>
 #include <linux/module.h>
 
-#include <linux/mfd/madera/core.h>
+#include <mfd/madera/core.h>
 
 #include "pinctrl-madera.h"
 

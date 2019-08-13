@@ -14,9 +14,9 @@
 #include <linux/module.h>
 #include <linux/platform_device.h>
 
-#include <linux/mfd/madera/core.h>
-#include <linux/mfd/madera/pdata.h>
-#include <linux/mfd/madera/registers.h>
+#include <mfd/madera/core.h>
+#include <mfd/madera/pdata.h>
+#include <mfd/madera/registers.h>
 
 struct madera_gpio {
 	struct madera *madera;

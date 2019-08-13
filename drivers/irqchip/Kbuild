@@ -1,11 +1,12 @@
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
 EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
+EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include/linux
 
 cirrus_irq-madera-objs = irq-madera.o
 
 obj-m += cirrus_irq-madera.o
 
-cirrus_irq-tacna-objs = irq-tacna.o
+# cirrus_irq-tacna-objs = irq-tacna.o
 
-obj-m += cirrus_irq-tacna.o
+# obj-m += cirrus_irq-tacna.o

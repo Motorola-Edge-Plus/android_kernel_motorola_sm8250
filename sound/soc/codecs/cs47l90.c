@@ -27,8 +27,8 @@
 #include <sound/initval.h>
 #include <sound/tlv.h>
 
-#include <linux/mfd/madera/core.h>
-#include <linux/mfd/madera/registers.h>
+#include <mfd/madera/core.h>
+#include <mfd/madera/registers.h>
 
 #include "madera.h"
 #include "wm_adsp.h"

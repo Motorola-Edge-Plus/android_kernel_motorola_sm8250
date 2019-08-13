@@ -1,33 +1,34 @@
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
 EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
-EXTRA_CFLAGS += -DCONFIG_SND_SOC_AOV_TRIGGER
+EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include/linux
+# EXTRA_CFLAGS += -DCONFIG_SND_SOC_AOV_TRIGGER
 
 cirrus_madera-objs = madera.o madera-slimbus.o
 obj-m += cirrus_madera.o
 
-cirrus_tacna-objs = tacna.o
-obj-m += cirrus_tacna.o
+# cirrus_tacna-objs = tacna.o
+# obj-m += cirrus_tacna.o
 
 cirrus_wm_adsp-objs = wm_adsp.o
 obj-m += cirrus_wm_adsp.o
 
-cirrus_cs35l35-objs = cs35l35.o
-obj-m += cirrus_cs35l35.o
+# cirrus_cs35l35-objs = cs35l35.o
+# obj-m += cirrus_cs35l35.o
 
-cirrus_cs35l36-objs = cs35l36.o cs35l36-tables.o
-obj-m += cirrus_cs35l36.o
+# cirrus_cs35l36-objs = cs35l36.o cs35l36-tables.o
+# obj-m += cirrus_cs35l36.o
 
-#cirrus_cs47l35-objs =  cs47l35.o
-#obj-m += cirrus_cs47l35.o
+cirrus_cs47l35-objs =  cs47l35.o
+obj-m += cirrus_cs47l35.o
 
 #cirrus_cs47l90-objs =  cs47l90.o
 #obj-m += cirrus_cs47l90.o
 
-obj-m += aov_trigger.o
+# obj-m += aov_trigger.o
 
-cirrus_cs48l32-objs =  cs48l32.o
-obj-m += cirrus_cs48l32.o
+# cirrus_cs48l32-objs =  cs48l32.o
+# obj-m += cirrus_cs48l32.o
 
 cirrus_cs35l41-objs = cs35l41.o cs35l41-tables.o
 obj-m += cirrus_cs35l41.o

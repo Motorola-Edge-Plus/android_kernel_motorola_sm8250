@@ -27,8 +27,8 @@
 #include <linux/regulator/machine.h>
 #include <linux/regulator/of_regulator.h>
 
-#include <linux/mfd/madera/core.h>
-#include <linux/mfd/madera/registers.h>
+#include <mfd/madera/core.h>
+#include <mfd/madera/registers.h>
 
 #include "madera.h"
 
@@ -642,7 +642,7 @@ int madera_dev_init(struct madera *madera)
 	int i, ret;
 
 	dev_set_drvdata(madera->dev, madera);
-
+	mutex_init(&madera->dapm_ptr_lock);
 	/*
 	 * Pinctrl subsystem only configures pinctrls if all referenced pins
 	 * are registered. Create our pinctrl child now so that its pins exist

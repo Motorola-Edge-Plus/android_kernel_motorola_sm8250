@@ -1,29 +1,22 @@
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
 EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
-ifeq ($(CONFIG_ARCH_SDM450), y)
+EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include/linux
 EXTRA_CFLAGS += -DCONFIG_MFD_CS47L35
 cirrus_madera-core-objs = madera-core.o madera-spi.o madera-core.o madera-spi.o cs47l35-tables.o
-else ifeq ($(CONFIG_ARCH_SM6150), y)
-EXTRA_CFLAGS += -DCONFIG_MFD_CS47L35
-cirrus_madera-core-objs = madera-core.o madera-spi.o madera-core.o madera-spi.o cs47l35-tables.o
-else
-EXTRA_CFLAGS += -DCONFIG_MFD_CS47L90
-cirrus_madera-core-objs = madera-core.o madera-spi.o madera-core.o madera-spi.o cs47l90-tables.o
-endif
 
 obj-m += cirrus_madera-core.o
 
-cirrus_tacna-core-objs = tacna-core.o tacna-spi.o
+# cirrus_tacna-core-objs = tacna-core.o tacna-spi.o
 
-ifneq ($(filter m y,$(CONFIG_MFD_CS47L96)),)
-    EXTRA_CFLAGS += -DCONFIG_MFD_CS47L96
-    cirrus_tacna-core-objs += cs47l96-tables.o
-endif
+# ifneq ($(filter m y,$(CONFIG_MFD_CS47L96)),)
+#    EXTRA_CFLAGS += -DCONFIG_MFD_CS47L96
+#    cirrus_tacna-core-objs += cs47l96-tables.o
+# endif
 
-ifneq ($(filter m y,$(CONFIG_MFD_CS48L32)),)
-    EXTRA_CFLAGS += -DCONFIG_MFD_CS48L32
-    cirrus_tacna-core-objs += cs48l32-tables.o
-endif
+# ifneq ($(filter m y,$(CONFIG_MFD_CS48L32)),)
+#    EXTRA_CFLAGS += -DCONFIG_MFD_CS48L32
+#    cirrus_tacna-core-objs += cs48l32-tables.o
+# endif
 
-obj-m += cirrus_tacna-core.o
+# obj-m += cirrus_tacna-core.o

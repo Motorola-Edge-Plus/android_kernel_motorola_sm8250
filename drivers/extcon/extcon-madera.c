@@ -13,7 +13,7 @@
 #include <linux/device.h>
 #include <linux/delay.h>
 #include <linux/err.h>
-#include <linux/extcon.h>
+#include <linux/extcon-provider.h>
 #include <linux/gpio.h>
 #include <linux/input.h>
 #include <linux/interrupt.h>
@@ -27,13 +27,13 @@
 
 #include <sound/soc.h>
 
-#include <linux/extcon/extcon-madera.h>
-#include <linux/extcon/extcon-madera-pdata.h>
+#include <extcon/extcon-madera.h>
+#include <extcon/extcon-madera-pdata.h>
 #include <dt-bindings/extcon/extcon-madera.h>
 
-#include <linux/mfd/madera/core.h>
-#include <linux/mfd/madera/pdata.h>
-#include <linux/mfd/madera/registers.h>
+#include <mfd/madera/core.h>
+#include <mfd/madera/pdata.h>
+#include <mfd/madera/registers.h>
 
 #define MADERA_MAX_MICD_RANGE		8
 

@@ -1,5 +1,6 @@
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
 EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
+EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include/linux
 
 obj-m += arizona-ldo1.o arizona-micsupp.o

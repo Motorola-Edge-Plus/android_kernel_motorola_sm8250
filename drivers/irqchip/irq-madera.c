@@ -20,11 +20,11 @@
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
 #include <linux/of_irq.h>
-#include <linux/irqchip/irq-madera.h>
-#include <linux/irqchip/irq-madera-pdata.h>
-#include <linux/mfd/madera/core.h>
-#include <linux/mfd/madera/pdata.h>
-#include <linux/mfd/madera/registers.h>
+#include <irqchip/irq-madera.h>
+#include <irqchip/irq-madera-pdata.h>
+#include <mfd/madera/core.h>
+#include <mfd/madera/pdata.h>
+#include <mfd/madera/registers.h>
 
 struct madera_irq_priv {
 	struct device			*dev;

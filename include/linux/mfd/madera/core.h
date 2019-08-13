@@ -15,8 +15,8 @@
 #include <linux/notifier.h>
 #include <linux/regmap.h>
 #include <linux/gpio/consumer.h>
-#include <linux/irqchip/irq-madera.h>
-#include <linux/mfd/madera/pdata.h>
+#include <irqchip/irq-madera.h>
+#include <mfd/madera/pdata.h>
 #include <linux/regulator/consumer.h>
 #include <sound/madera-pdata.h>
 
@@ -164,10 +164,11 @@ struct madera {
 	unsigned int out_clamp[MADERA_MAX_OUTPUT];
 	unsigned int out_shorted[MADERA_MAX_OUTPUT];
 	unsigned int hp_ena;
+	unsigned int ep_sel;
 	unsigned int hp_impedance_x100[MADERA_MAX_ACCESSORY];
 
 	struct snd_soc_dapm_context *dapm;
-
+	struct mutex dapm_ptr_lock;
 	struct mutex reg_setting_lock;
 
 	struct blocking_notifier_head notifier;

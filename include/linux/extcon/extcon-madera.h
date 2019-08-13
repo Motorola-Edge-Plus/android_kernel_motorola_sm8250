@@ -11,7 +11,7 @@
 #ifndef EXTCON_MADERA_H
 #define EXTCON_MADERA_H
 
-#include <linux/mfd/madera/registers.h>
+#include <mfd/madera/registers.h>
 
 /* Conversion between ohms and hundredths of an ohm. */
 static inline unsigned int madera_hohm_to_ohm(unsigned int hohms)

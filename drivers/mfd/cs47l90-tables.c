@@ -12,8 +12,8 @@
 
 #include <linux/module.h>
 
-#include <linux/mfd/madera/core.h>
-#include <linux/mfd/madera/registers.h>
+#include <mfd/madera/core.h>
+#include <mfd/madera/registers.h>
 #include <linux/device.h>
 
 #include "madera.h"

@@ -15,7 +15,7 @@
 #include <linux/of.h>
 #include <linux/spi/spi.h>
 
-#include <linux/mfd/madera/core.h>
+#include <mfd/madera/core.h>
 
 #include "madera.h"
 

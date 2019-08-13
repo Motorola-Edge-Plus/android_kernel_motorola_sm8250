@@ -85,7 +85,7 @@ struct wm_adsp {
 	int type;
 	struct device *dev;
 	struct regmap *regmap;
-	struct snd_soc_codec *codec;
+	struct snd_soc_component *component;
 
 	unsigned int base;
 	unsigned int base_sysinfo;
@@ -177,8 +177,8 @@ extern const struct soc_enum wm_adsp_fw_enum[];
 int wm_adsp1_init(struct wm_adsp *dsp);
 int wm_adsp2_init(struct wm_adsp *dsp);
 void wm_adsp2_remove(struct wm_adsp *dsp);
-int wm_adsp2_codec_probe(struct wm_adsp *dsp, struct snd_soc_codec *codec);
-int wm_adsp2_codec_remove(struct wm_adsp *dsp, struct snd_soc_codec *codec);
+int wm_adsp2_component_probe(struct wm_adsp *dsp, struct snd_soc_component *component);
+int wm_adsp2_component_remove(struct wm_adsp *dsp, struct snd_soc_component *component);
 void wm_adsp_queue_boot_work(struct wm_adsp *dsp);
 int wm_vpu_setup_algs(struct wm_adsp *vpu);
 int wm_vpu_init(struct wm_adsp *vpu);
