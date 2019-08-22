@@ -30,15 +30,15 @@
 #include <linux/mfd/arizona/pdata.h>
 #include <linux/mfd/arizona/registers.h>
 
-#include <linux/mfd/madera/core.h>
-#include <linux/mfd/madera/pdata.h>
-#include <linux/mfd/madera/registers.h>
+#include <mfd/madera/core.h>
+#include <mfd/madera/pdata.h>
+#include <mfd/madera/registers.h>
 
-#include <linux/mfd/tacna/core.h>
-#include <linux/mfd/tacna/pdata.h>
-#include <linux/mfd/tacna/registers.h>
+#include <mfd/tacna/core.h>
+#include <mfd/tacna/pdata.h>
+#include <mfd/tacna/registers.h>
 
-#include <linux/regulator/arizona-micsupp.h>
+#include <regulator/arizona-micsupp.h>
 
 struct arizona_micsupp {
 	struct regulator_dev *regulator;
