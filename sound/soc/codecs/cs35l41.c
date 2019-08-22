@@ -1880,6 +1880,7 @@ static struct snd_soc_dai_driver cs35l41_dai[] = {
 };
 
 static const struct snd_soc_component_driver soc_component_dev_cs35l41 = {
+	.name = "cs35l41-codec",
 	.probe = cs35l41_component_probe,
 	.remove = cs35l41_component_remove,
 
