@@ -207,7 +207,24 @@ EXPORT_SYMBOL_GPL(madera_name_from_type);
 static int madera_wait_for_boot(struct madera *madera)
 {
 	unsigned int val;
-	int ret;
+	unsigned int timeout = 5;
+	int ret, i;
+
+	/* ensure chid can read correctly, then check boot done bit */
+	for (i = 0; i < timeout; i++) {
+		ret = regmap_read(madera->regmap, MADERA_SOFTWARE_RESET, &val);
+		if (ret != 0) {
+			dev_err(madera->dev, "Failed to read chip id, ret %d\n", ret);
+			continue;
+		}
+		if (val == CS47L35_SILICON_ID || val == CS47L90_SILICON_ID)
+			break;
+
+		usleep_range(1000, 1010);
+	}
+	if (i >= timeout)
+		return -ETIMEDOUT;
+
 
 	/*
 	 * We can't use an interrupt as we need to runtime resume to do so,
