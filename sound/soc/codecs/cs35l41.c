@@ -1177,6 +1177,9 @@ static irqreturn_t cs35l41_irq(int irq, void *data)
 		dev_crit(cs35l41->dev, "VPBR Flag!\n");
 		regmap_write(cs35l41->regmap, CS35L41_IRQ1_STATUS1,
 					CS35L41_VPBR_FLAG);
+		/* Mask VPBP Flag IRQ */
+		regmap_update_bits(cs35l41->regmap, CS35L41_IRQ1_MASK1,
+					CS35L41_VPBR_FLAG, CS35L41_VPBR_FLAG);
 	}
 
 	if (status[3] & CS35L41_OTP_BOOT_DONE) {
@@ -1307,6 +1310,9 @@ static int cs35l41_main_amp_event(struct snd_soc_dapm_widget *w,
 		regmap_update_bits(cs35l41->regmap, CS35L41_AMP_OUT_MUTE,
 				CS35L41_AMP_MUTE_MASK, 0);
 		cs35l41->enabled = true;
+		/* UnMask VPBP Flag IRQ */
+		regmap_update_bits(cs35l41->regmap, CS35L41_IRQ1_MASK1,
+					CS35L41_VPBR_FLAG, 0);
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
 		regmap_update_bits(cs35l41->regmap, CS35L41_AMP_OUT_MUTE,
