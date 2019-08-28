@@ -2233,9 +2233,9 @@ static const struct snd_soc_dapm_route cs47l90_dapm_routes[] = {
 	MADERA_DSP_ROUTES("DSP6"),
 	MADERA_DSP_ROUTES("DSP7"),
 
-	{ "DSP2 Preloader",  NULL, "DSP2 Virtual Input" },
+	{ "DSP2",  NULL, "DSP2 Virtual Input" },
 	{ "DSP2 Virtual Input", "Shared Memory", "DSP3" },
-	{ "DSP3 Preloader", NULL, "DSP3 Virtual Input" },
+	{ "DSP3", NULL, "DSP3 Virtual Input" },
 	{ "DSP3 Virtual Input", "Shared Memory", "DSP2" },
 
 	{ "DSP1 Trigger Out", NULL, "SYSCLK" },
@@ -2255,15 +2255,15 @@ static const struct snd_soc_dapm_route cs47l90_dapm_routes[] = {
 	{ "DSP6 Trigger Output", "Switch", "DSP6" },
 	{ "DSP7 Trigger Output", "Switch", "DSP7" },
 
-	{ "DSP1 Preloader", NULL, "DSP Virtual Input" },
+	{ "DSP1", NULL, "DSP Virtual Input" },
 	{ "DSP1 Trigger Out", NULL, "DSP1 Virtual Output" },
 	{ "DSP1 Virtual Output", NULL, "SYSCLK" },
 
-	{ "DSP2 Preloader", NULL, "DSP Virtual Input" },
+	{ "DSP2", NULL, "DSP Virtual Input" },
 	{ "DSP2 Trigger Out", NULL, "DSP2 Virtual Output" },
 	{ "DSP2 Virtual Output", NULL, "SYSCLK" },
 
-	{ "DSP3 Preloader", NULL, "DSP Virtual Input" },
+	{ "DSP3", NULL, "DSP Virtual Input" },
 	{ "DSP3 Trigger Out", NULL, "DSP3 Virtual Output" },
 	{ "DSP3 Virtual Output", NULL, "SYSCLK" },
 

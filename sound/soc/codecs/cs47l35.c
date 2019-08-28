@@ -588,6 +588,10 @@ SOC_DOUBLE_R_TLV("SPKDAT1 Digital Volume", MADERA_DAC_DIGITAL_VOLUME_5L,
 SOC_DOUBLE("SPKDAT1 Switch", MADERA_PDM_SPK1_CTRL_1, MADERA_SPK1L_MUTE_SHIFT,
 	   MADERA_SPK1R_MUTE_SHIFT, 1, 1),
 
+SOC_DOUBLE_EXT("HPOUT1 DRE Switch", MADERA_DRE_ENABLE,
+	   MADERA_DRE1L_ENA_SHIFT, MADERA_DRE1R_ENA_SHIFT, 1, 0,
+	   snd_soc_get_volsw, madera_dre_put),
+
 SOC_DOUBLE("HPOUT1 EDRE Switch", MADERA_EDRE_ENABLE,
 	   MADERA_EDRE_OUT1L_THR1_ENA_SHIFT,
 	   MADERA_EDRE_OUT1R_THR1_ENA_SHIFT, 1, 0),
@@ -1530,9 +1534,9 @@ static const struct snd_soc_dapm_route cs47l35_dapm_routes[] = {
 	MADERA_DSP_ROUTES("DSP2"),
 	MADERA_DSP_ROUTES("DSP3"),
 
-	{ "DSP2 Preloader", NULL, "DSP2 Virtual Input" },
+	{ "DSP2", NULL, "DSP2 Virtual Input" },
 	{ "DSP2 Virtual Input", "Shared Memory", "DSP3" },
-	{ "DSP3 Preloader", NULL, "DSP3 Virtual Input" },
+	{ "DSP3", NULL, "DSP3 Virtual Input" },
 	{ "DSP3 Virtual Input", "Shared Memory", "DSP2" },
 
 	{ "DSP1 Trigger Out", NULL, "SYSCLK" },
@@ -1544,15 +1548,15 @@ static const struct snd_soc_dapm_route cs47l35_dapm_routes[] = {
 	{ "DSP2 Trigger Output", "Switch", "DSP2" },
 	{ "DSP3 Trigger Output", "Switch", "DSP3" },
 
-	{ "DSP1 Preloader", NULL, "DSP Virtual Input" },
+	{ "DSP1", NULL, "DSP Virtual Input" },
 	{ "DSP1 Trigger Out", NULL, "DSP1 Virtual Output" },
 	{ "DSP1 Virtual Output", NULL, "SYSCLK" },
 
-	{ "DSP2 Preloader", NULL, "DSP Virtual Input" },
+	{ "DSP2", NULL, "DSP Virtual Input" },
 	{ "DSP2 Trigger Out", NULL, "DSP2 Virtual Output" },
 	{ "DSP2 Virtual Output", NULL, "SYSCLK" },
 
-	{ "DSP3 Preloader", NULL, "DSP Virtual Input" },
+	{ "DSP3", NULL, "DSP Virtual Input" },
 	{ "DSP3 Trigger Out", NULL, "DSP3 Virtual Output" },
 	{ "DSP3 Virtual Output", NULL, "SYSCLK" },
 
@@ -1897,7 +1901,7 @@ static int cs47l35_open(struct snd_compr_stream *stream)
 		return -EINVAL;
 	}
 
-	return wm_adsp_compr_open(&priv->adsp[n_adsp], stream); //, channel);
+	return wm_adsp_compr_open(&priv->adsp[n_adsp], stream, channel);
 }
 
 static int cs47l35_panic_check(struct cs47l35 *cs47l35, int dev, int *reg)
@@ -1992,7 +1996,7 @@ static irqreturn_t cs47l35_adsp2_irq(int irq, void *data)
 				channel = 1;
 			}
 		}
-		ret = wm_adsp_compr_handle_irq(&priv->adsp[i]); // , channel);
+		ret = wm_adsp_compr_handle_irq(&priv->adsp[i], channel);
 		if (ret != -ENODEV)
 			serviced++;
 	}

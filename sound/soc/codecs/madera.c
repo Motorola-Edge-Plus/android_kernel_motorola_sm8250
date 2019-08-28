@@ -102,7 +102,7 @@
 #define MADERA_FLL_SYNCHRONISER_OFFS		0x10
 #define CS47L35_FLL_SYNCHRONISER_OFFS		0xE
 #define MADERA_FLL_CONTROL_1_OFFS		0x1
-#define MADERA_FLL_CONTROL_2_OFFS		0x2F
+#define MADERA_FLL_CONTROL_2_OFFS		0x2
 #define MADERA_FLL_CONTROL_3_OFFS		0x3
 #define MADERA_FLL_CONTROL_4_OFFS		0x4
 #define MADERA_FLL_CONTROL_5_OFFS		0x5
@@ -2638,6 +2638,24 @@ static void madera_sleep(unsigned int delay)
 		msleep(delay);
 	}
 }
+int madera_dre_put(struct snd_kcontrol *kcontrol,
+		   struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_component *component =
+			snd_soc_kcontrol_component(kcontrol);
+	struct snd_soc_dapm_context *dapm =
+			snd_soc_component_get_dapm(component);
+	int ret;
+
+	snd_soc_dapm_mutex_lock(dapm);
+
+	ret = snd_soc_put_volsw(kcontrol, ucontrol);
+
+	snd_soc_dapm_mutex_unlock(dapm);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(madera_dre_put);
 
 int madera_out_ev(struct snd_soc_dapm_widget *w,
 		  struct snd_kcontrol *kcontrol, int event)
