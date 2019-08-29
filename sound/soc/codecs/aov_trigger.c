@@ -21,7 +21,7 @@
 #include <linux/sysfs.h>
 #include <sound/soc.h>
 // #include <linux/wakelock.h>
-#include <linux/mfd/madera/core.h>
+#include <mfd/madera/core.h>
 #include "madera.h"
 
 #define MAX_DSP_TO_CHECK 4
@@ -34,7 +34,7 @@ struct dsp_event_info {
 };
 static bool aov_trigger_active;
 static struct kobject aov_trigger_kobj;
-static struct snd_soc_codec *aov_codec;
+static struct snd_soc_component *aov_component;
 static struct notifier_block aov_trigger_nb;
 static struct wakeup_source aov_wake_src;
 
@@ -65,7 +65,7 @@ static int aov_trigger_notify(struct notifier_block *nb,
 	struct madera_voice_trigger_info *trig_info = data;
 	int dsp;
 
-	if (aov_codec == NULL)
+	if (aov_component == NULL)
 		return -EPERM;
 	/*
 	 * Once a trigger is received, unregister from
@@ -73,7 +73,7 @@ static int aov_trigger_notify(struct notifier_block *nb,
 	 * the rigger.
 	 */
 
-	dev_dbg(aov_codec->dev, "received madera notity event: 0x%lx", event);
+	dev_dbg(aov_component->dev, "received madera notity event: 0x%lx", event);
 	if ((event == MADERA_NOTIFY_VOICE_TRIGGER) &&
 	    (trig_info->core_num >= 0) &&
 	    (trig_info->core_num < MAX_DSP_TO_CHECK)) {
@@ -85,7 +85,7 @@ static int aov_trigger_notify(struct notifier_block *nb,
 			if (!aov_trigger_active)
 				return 0;
 			aov_trigger_active = false;
-			dev_info(aov_codec->dev,
+			dev_info(aov_component->dev,
 				"DSP%d: notify aov trigger.", dsp);
 			sysfs_notify(&aov_trigger_kobj, NULL,
 				     aov_sysfs_attr_trigger.name);
@@ -95,7 +95,7 @@ static int aov_trigger_notify(struct notifier_block *nb,
 			mutex_lock(&dsp_info_mutex);
 			dsp_info[dsp].event = 1;
 			mutex_unlock(&dsp_info_mutex);
-			dev_info(aov_codec->dev,
+			dev_info(aov_component->dev,
 				"DSP%d: aov notify text event.", dsp);
 			sysfs_notify(&aov_trigger_kobj, NULL,
 				     aov_sysfs_attr_event.name);
@@ -106,7 +106,7 @@ static int aov_trigger_notify(struct notifier_block *nb,
 			memcpy(dsp_info[dsp].panic_code, trig_info->err_msg,
 			       sizeof(u16) * MAX_NUM_PANIC_CODE);
 			mutex_unlock(&dsp_info_mutex);
-			dev_info(aov_codec->dev,
+			dev_info(aov_component->dev,
 				"DSP%d: aov notify panic.", dsp);
 			sysfs_notify(&aov_trigger_kobj, NULL,
 				     aov_sysfs_attr_event.name);
@@ -119,23 +119,23 @@ static int aov_trigger_notify(struct notifier_block *nb,
 
 static void aov_register_trigger(void)
 {
-	if (aov_codec == NULL)
+	if (aov_component == NULL)
 		return;
 	aov_trigger_active = true;
-	dev_dbg(aov_codec->dev, "registered aov trigger.");
+	dev_dbg(aov_component->dev, "registered aov trigger.");
 }
 
 static void aov_unregister_trigger(void)
 {
-	if (aov_codec == NULL)
+	if (aov_component == NULL)
 		return;
 	aov_trigger_active = false;
-	dev_dbg(aov_codec->dev, "unregistered aov trigger.");
+	dev_dbg(aov_component->dev, "unregistered aov trigger.");
 }
 
 static void aov_sysfs_release(struct kobject *kobj)
 {
-	aov_codec = NULL;
+	aov_component = NULL;
 }
 
 static ssize_t aov_sysfs_show(struct kobject *kobj,
@@ -198,12 +198,12 @@ static struct kobj_type ktype_aov_trigger = {
 	.release = aov_sysfs_release,
 };
 
-void aov_trigger_register_notifier(struct snd_soc_codec *codec)
+void aov_trigger_register_notifier(struct snd_soc_component *component)
 {
-	if (!aov_codec) {
+	if (!aov_component) {
 		aov_trigger_nb.notifier_call = aov_trigger_notify;
-		aov_codec = codec;
-		madera_register_notifier(aov_codec, &aov_trigger_nb);
+		aov_component = component;
+		madera_register_notifier(aov_component, &aov_trigger_nb);
 	}
 }
 EXPORT_SYMBOL_GPL(aov_trigger_register_notifier);

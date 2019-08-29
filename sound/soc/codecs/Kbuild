@@ -2,7 +2,10 @@
 EXTRA_CFLAGS += -Wall
 EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
 EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include/linux
-# EXTRA_CFLAGS += -DCONFIG_SND_SOC_AOV_TRIGGER
+EXTRA_CFLAGS += -I$(TOP)/vendor/qcom/opensource/audio-kernel/include
+EXTRA_CFLAGS += -I$(TOP)/vendor/qcom/opensource/audio-kernel/include/uapi/
+
+EXTRA_CFLAGS += -DCONFIG_SND_SOC_AOV_TRIGGER
 
 cirrus_madera-objs = madera.o madera-slimbus.o
 obj-m += cirrus_madera.o
@@ -25,7 +28,7 @@ obj-m += cirrus_cs47l35.o
 #cirrus_cs47l90-objs =  cs47l90.o
 #obj-m += cirrus_cs47l90.o
 
-# obj-m += aov_trigger.o
+obj-m += aov_trigger.o
 
 # cirrus_cs48l32-objs =  cs48l32.o
 # obj-m += cirrus_cs48l32.o
@@ -39,3 +42,5 @@ else
    cirrus_cs35l41-objs += cs35l41-i2c.o
 endif
 
+# cirrus_playback-objs = msm-cirrus-playback.o
+# obj-m += cirrus_playback.o
