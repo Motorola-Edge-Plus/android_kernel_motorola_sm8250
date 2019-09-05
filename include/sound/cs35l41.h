@@ -35,6 +35,7 @@ struct cs35l41_platform_data {
 	bool right_channel;
 	bool amp_gain_zc;
 	bool ng_enable;
+	bool hibernate_enable;
 	int bst_ind;
 	int bst_vctrl;
 	int bst_ipk;
@@ -87,6 +88,7 @@ struct cs35l41_private {
 	bool fast_switch_en;
 	bool force_int;
 	struct mutex rate_lock;
+	bool hibernate_force_wake;
 	/* GPIO for /RST */
 	struct gpio_desc *reset_gpio;
 	/* Run-time mixer */
