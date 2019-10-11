@@ -2260,7 +2260,7 @@ int cs35l41_probe(struct cs35l41_private *cs35l41,
 		if (timeout == 0) {
 			dev_err(cs35l41->dev,
 				"Timeout waiting for OTP_BOOT_DONE\n");
-			ret = -EBUSY;
+			ret = -EPROBE_DEFER;
 			goto err;
 		}
 		usleep_range(1000, 1100);
