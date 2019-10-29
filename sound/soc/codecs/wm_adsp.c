@@ -4041,7 +4041,7 @@ int wm_adsp2_component_probe(struct wm_adsp *dsp, struct snd_soc_component *comp
 
 	dsp->component = component;
 
-	return 0;
+	return(snd_soc_add_component_controls(component, &dsp->fw_ctrl, 1));
 }
 EXPORT_SYMBOL_GPL(wm_adsp2_component_probe);
 
