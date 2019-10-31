@@ -440,6 +440,8 @@ static void madera_prop_get_pdata(struct madera_priv *priv)
 
 int madera_core_init(struct madera_priv *priv)
 {
+	int i;
+
 	BUILD_BUG_ON(ARRAY_SIZE(madera_mixer_texts) != MADERA_NUM_MIXER_INPUTS);
 	BUILD_BUG_ON(ARRAY_SIZE(madera_mixer_values) != MADERA_NUM_MIXER_INPUTS);
 	/* trap undersized array initializers */
@@ -450,6 +452,9 @@ int madera_core_init(struct madera_priv *priv)
 		madera_prop_get_pdata(priv);
 
 	mutex_init(&priv->rate_lock);
+
+	for (i = 0; i < MADERA_MAX_OUTPUT; i++)
+		priv->madera->out_clamp[i] = true;
 
 	return 0;
 }
