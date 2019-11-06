@@ -3322,7 +3322,7 @@ static int madera_startup(struct snd_pcm_substream *substream,
 		else if (base_rate % 4000)
 			dai_priv->constraint.mask = MADERA_192K_44K1_RATE_MASK;
 		else
-			dai_priv->constraint.mask = MADERA_192K_48K_RATE_MASK;
+			dai_priv->constraint.mask = MADERA_192K_RATE_MASK;
 		break;
 	}
 
