@@ -260,7 +260,7 @@ static int cs47l35_put_dsp_state(struct snd_kcontrol *kcontrol,
 {
 	return 0;
 }
-#ifdef  _NO_USE_
+
 static int cs47l35_get_trig_state(struct snd_kcontrol *kcontrol,
 		struct snd_ctl_elem_value *ucontrol)
 {
@@ -292,7 +292,6 @@ static int cs47l35_put_trig_state(struct snd_kcontrol *kcontrol,
 		compr->freed = value;
 	return 0;
 }
-#endif
 
 #define CS47L35_NG_SRC(name, base) \
 	SOC_SINGLE(name " NG HPOUT1L Switch",  base,  0, 1, 0), \
@@ -414,9 +413,9 @@ SOC_SINGLE("IN2L HPF Switch", MADERA_IN2L_CONTROL,
 SOC_SINGLE("IN2R HPF Switch", MADERA_IN2R_CONTROL,
 	   MADERA_IN2R_HPF_SHIFT, 1, 0),
 
-// SOC_SINGLE_EXT("Set Trigger State Switch", SND_SOC_NOPM, 0, 1, 0,
-// 	       cs47l35_get_trig_state,
-//	       cs47l35_put_trig_state),
+SOC_SINGLE_EXT("Set Trigger State Switch", SND_SOC_NOPM, 0, 1, 0,
+	       cs47l35_get_trig_state,
+	       cs47l35_put_trig_state),
 SOC_SINGLE_EXT("Get DSP1 State", SND_SOC_NOPM, 0, 1, 0, cs47l35_get_dsp_state,
 	       cs47l35_put_dsp_state),
 SOC_SINGLE_EXT("Get DSP2 State", SND_SOC_NOPM, 1, 1, 0, cs47l35_get_dsp_state,
