@@ -2048,7 +2048,7 @@ static int cs35l41_irq_gpio_config(struct cs35l41_private *cs35l41)
 {
 	struct irq_cfg *irq_gpio_cfg1 = &cs35l41->pdata.irq_config1;
 	struct irq_cfg *irq_gpio_cfg2 = &cs35l41->pdata.irq_config2;
-	int irq_pol = IRQF_TRIGGER_NONE;
+	int irq_pol = IRQF_TRIGGER_FALLING;
 
 	if (irq_gpio_cfg1->is_present) {
 		if (irq_gpio_cfg1->irq_pol_inv)
