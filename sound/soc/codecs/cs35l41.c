@@ -44,6 +44,7 @@
 #include "wm_adsp.h"
 #include "cs35l41.h"
 #include <sound/cs35l41.h>
+#include <dsp/audio_notifier.h>
 
 static const char * const cs35l41_supplies[] = {
 	"VA",
@@ -138,6 +139,8 @@ static const unsigned char cs35l41_bst_k2_table[4][5] = {
 
 static const unsigned char cs35l41_bst_slope_table[4] = {
 					0x75, 0x6B, 0x3B, 0x28};
+
+static struct snd_soc_component *cs35l41_component;
 
 static int cs35l41_enter_hibernate(struct cs35l41_private *cs35l41);
 static int cs35l41_exit_hibernate(struct cs35l41_private *cs35l41);
@@ -271,17 +274,8 @@ static int cs35l41_force_int_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
-static int cs35l41_amp_reset_get(struct snd_kcontrol *kcontrol,
-				     struct snd_ctl_elem_value *ucontrol)
+static int cs35l41_amp_reset(struct snd_soc_component *component)
 {
-	return 0;
-}
-
-static int cs35l41_amp_reset_put(struct snd_kcontrol *kcontrol,
-			   struct snd_ctl_elem_value *ucontrol)
-{
-	struct snd_soc_component *component =
-		snd_soc_kcontrol_component(kcontrol);
 	struct cs35l41_private *cs35l41 =
 		snd_soc_component_get_drvdata(component);
 	struct snd_soc_dapm_context *dapm =
@@ -289,10 +283,7 @@ static int cs35l41_amp_reset_put(struct snd_kcontrol *kcontrol,
 	int status, ret, retries;
 	int timeout = 100;
 
-	if (!ucontrol->value.integer.value[0])
-		return 0;
-
-	dev_info(cs35l41->dev, "AMP reset requested\n");
+	dev_info(cs35l41->dev, "AMP reset \n");
 
 	if (!cs35l41->reset_gpio) {
 		dev_info(cs35l41->dev, "Reset GPIO is not configured\n");
@@ -367,6 +358,25 @@ static int cs35l41_amp_reset_put(struct snd_kcontrol *kcontrol,
 		flush_work(&cs35l41->dsp.boot_work);
 	}
 	return 0;
+}
+
+static int cs35l41_amp_reset_get(struct snd_kcontrol *kcontrol,
+				     struct snd_ctl_elem_value *ucontrol)
+{
+	return 0;
+}
+
+static int cs35l41_amp_reset_put(struct snd_kcontrol *kcontrol,
+			   struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_component *component =
+		snd_soc_kcontrol_component(kcontrol);
+
+	if (!ucontrol->value.integer.value[0])
+		return 0;
+
+	dev_info(component->dev, "AMP reset requested from card\n");
+	return cs35l41_amp_reset(component);
 }
 
 static int cs35l41_ccm_reset_get(struct snd_kcontrol *kcontrol,
@@ -2200,6 +2210,7 @@ static int cs35l41_component_probe(struct snd_soc_component *component)
 	struct snd_kcontrol_new	*kcontrol;
 	int ret = 0;
 
+	cs35l41_component = component;
 	component->regmap = cs35l41->regmap;
 
 	cs35l41_set_pdata(cs35l41);
@@ -2293,6 +2304,7 @@ static void cs35l41_component_remove(struct snd_soc_component *component)
 		snd_soc_component_get_drvdata(component);
 
 	wm_adsp2_component_remove(&cs35l41->dsp, component);
+	cs35l41_component = NULL;
 }
 
 static const struct snd_soc_dai_ops cs35l41_ops = {
@@ -2407,6 +2419,9 @@ static int cs35l41_handle_of_data(struct device *dev,
 
 	pdata->fwname_use_revid = of_property_read_bool(np,
 					"cirrus,fwname-use-revid");
+
+	pdata->handle_ssr = of_property_read_bool(np,
+					"cirrus,handle-adsp-ssr");
 
 	if (of_property_read_u32(np, "cirrus,temp-warn_threshold", &val) >= 0)
 		pdata->temp_warn_thld = val | CS35L41_VALID_PDATA;
@@ -2980,6 +2995,54 @@ static int cs35l41_restore(struct cs35l41_private *cs35l41)
 	return 0;
 }
 
+static void cs35l41_restart_work(struct work_struct *work)
+{
+	struct cs35l41_private *cs35l41 =
+		container_of(work, struct cs35l41_private, restart_work);
+	struct snd_soc_component *component =
+		snd_soc_lookup_component(cs35l41->dev, "cs35l41-codec");
+	if (!component)
+		dev_err(cs35l41->dev, "Could not find component for cs35l41-codec");
+	else
+		cs35l41_amp_reset(component);
+}
+
+static int cs35l41_notifier_service_cb(struct notifier_block *this,
+					unsigned long opcode, void *ptr)
+{
+	struct cs35l41_private *cs35l41;
+
+	pr_debug("%s: Service opcode 0x%lx\n", __func__, opcode);
+
+	if (cs35l41_component == NULL) {
+		pr_err("%s - cs35l41 not ready to handle SSR\n", __func__);
+		return NOTIFY_OK;
+	}
+
+	cs35l41 = snd_soc_component_get_drvdata(cs35l41_component);
+
+        switch (opcode) {
+        case AUDIO_NOTIFIER_SERVICE_DOWN:
+		cs35l41->restart_needed = true;
+                break;
+        case AUDIO_NOTIFIER_SERVICE_UP:
+		if (cs35l41->restart_needed) {
+			dev_err(cs35l41->dev, "AMP reset triggered due to SSR");
+			queue_work(cs35l41->wq, &cs35l41->restart_work);
+		}
+		cs35l41->restart_needed = false;
+                break;
+        default:
+                break;
+        }
+        return NOTIFY_OK;
+}
+
+static struct notifier_block service_nb = {
+	.notifier_call  = cs35l41_notifier_service_cb,
+	.priority = -INT_MAX,
+};
+
 int cs35l41_probe(struct cs35l41_private *cs35l41,
 				struct cs35l41_platform_data *pdata)
 {
@@ -3198,8 +3261,16 @@ int cs35l41_probe(struct cs35l41_private *cs35l41,
 		goto err;
 	}
 
+	INIT_WORK(&cs35l41->restart_work, cs35l41_restart_work);
 	INIT_DELAYED_WORK(&cs35l41->hb_work, cs35l41_hibernate_work);
 	mutex_init(&cs35l41->hb_lock);
+	if (cs35l41->pdata.handle_ssr) {
+		ret = audio_notifier_register("cs35l41", AUDIO_NOTIFIER_ADSP_DOMAIN,
+					&service_nb);
+
+		if (ret < 0)
+			dev_err(cs35l41->dev, "ADSP SSR notifications failed");
+	}
 err:
 	regulator_bulk_disable(cs35l41->num_supplies, cs35l41->supplies);
 	return ret;
@@ -3215,6 +3286,8 @@ int cs35l41_remove(struct cs35l41_private *cs35l41)
 	wm_adsp2_remove(&cs35l41->dsp);
 	regulator_bulk_disable(cs35l41->num_supplies, cs35l41->supplies);
 	snd_soc_unregister_component(cs35l41->dev);
+	if (cs35l41->pdata.handle_ssr)
+		audio_notifier_deregister("cs35l41");
 	return 0;
 }
 EXPORT_SYMBOL_GPL(cs35l41_remove);

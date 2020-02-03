@@ -38,6 +38,7 @@ struct cs35l41_platform_data {
 	bool tuning_has_prefix;
 	bool hibernate_enable;
 	bool fwname_use_revid;
+	bool handle_ssr;
 	int bst_ind;
 	int bst_vctrl;
 	int bst_ipk;
@@ -91,6 +92,7 @@ struct cs35l41_private {
 	bool force_int;
 	struct mutex rate_lock;
 	bool hibernate_force_wake;
+	bool restart_needed;
 	/* GPIO for /RST */
 	struct gpio_desc *reset_gpio;
 	/* Run-time mixer */
@@ -99,6 +101,7 @@ struct cs35l41_private {
 	const char **fast_switch_names;
 	struct mutex force_int_lock;
 	struct delayed_work hb_work;
+	struct work_struct restart_work;
 	struct workqueue_struct *wq;
 	struct mutex hb_lock;
 	struct cs35l41_rst_cache reset_cache;
