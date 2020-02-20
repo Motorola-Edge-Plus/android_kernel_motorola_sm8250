@@ -3213,6 +3213,9 @@ static int madera_extcon_probe(struct platform_device *pdev)
 	if (!madera->dapm || !madera->dapm->card)
 		return -EPROBE_DEFER;
 
+	if (!madera->dapm->card->instantiated)
+		return -EPROBE_DEFER;
+
 	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
