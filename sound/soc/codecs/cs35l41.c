@@ -1368,6 +1368,9 @@ static int cs35l41_pcm_source_event(struct snd_soc_dapm_widget *w,
 		snd_soc_component_get_drvdata(component);
 	unsigned int source;
 
+	if (cs35l41->pdata.disable_wake_ctrl)
+		return 0;
+
 	regmap_read(cs35l41->regmap, CS35L41_DAC_PCM1_SRC, &source);
 
 	if (source == CS35L41_INPUT_SRC_ASPRX1)
@@ -2444,6 +2447,12 @@ static int cs35l41_handle_of_data(struct device *dev,
 
 	pdata->handle_ssr = of_property_read_bool(np,
 					"cirrus,handle-adsp-ssr");
+
+	pdata->disable_wake_ctrl = of_property_read_bool(np,
+					"cirrus,disable-wake-ctrl");
+
+	if (pdata->disable_wake_ctrl)
+		cs35l41->halo_routed = true;
 
 	if (of_property_read_u32(np, "cirrus,temp-warn_threshold", &val) >= 0)
 		pdata->temp_warn_thld = val | CS35L41_VALID_PDATA;
