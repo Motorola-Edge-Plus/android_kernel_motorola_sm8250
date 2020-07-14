@@ -20,6 +20,7 @@
 #include <linux/string.h>
 #include <linux/sysfs.h>
 #include <sound/soc.h>
+#include <linux/version.h>
 // #include <linux/wakelock.h>
 #include <mfd/madera/core.h>
 #include "madera.h"
@@ -253,7 +254,11 @@ static int aov_trigger_probe(struct platform_device *pdev)
 		goto exit_remove_register;
 	}
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 110))
 	aov_wake_src = wakeup_source_register(&pdev->dev, "aov_wakelock");
+#else
+	aov_wake_src = wakeup_source_register("aov_wakelock");
+#endif
 	if (!aov_wake_src) {
 		dev_err(&pdev->dev,
 			"%s: failed to allocate wakeup source\n",
