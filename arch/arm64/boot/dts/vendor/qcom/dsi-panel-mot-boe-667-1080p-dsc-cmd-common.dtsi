@@ -71,6 +71,28 @@ qcom,mdss-dsi-acl-off-command = [
 
 qcom,mdss-dsi-panel-hbm-is-51cmd;
 
+qcom,fod-dim-lut = <
+		/* brightness, alpha */
+		0	255
+		4	249
+		6	237
+		12	231
+		19	226
+		25	223
+		50	211
+		100	192
+		169	174
+		257	157
+		376	140
+		500	125
+		652	110
+		815	92
+		991	76
+		1173	64
+		1386	51
+		1568	39
+		1600	36
+>;
 qcom,mdss-dsi-display-timings {
 	timing@0{
 		qcom,mdss-dsi-cmd-mode;
