@@ -1106,6 +1106,8 @@ typedef enum {
     WMITLV_TAG_STRUC_wmi_wfa_config_csa,
     WMITLV_TAG_STRUC_wmi_wfa_config_ocv,
     WMITLV_TAG_STRUC_wmi_wfa_config_saquery,
+    WMITLV_TAG_STRUC_wmi_roam_data_rssi_roaming_param,
+    WMITLV_TAG_STRUC_wmi_request_unified_ll_get_sta_cmd_fixed_param,
 } WMITLV_TAG_ID;
 
 /*
@@ -1555,6 +1557,7 @@ typedef enum {
     OP(WMI_AUDIO_AGGR_SET_SCHED_METHOD_CMDID) \
     OP(WMI_AUDIO_AGGR_GET_SCHED_METHOD_CMDID) \
     OP(WMI_WFA_CONFIG_CMDID) \
+    OP(WMI_REQUEST_UNIFIED_LL_GET_STA_CMDID) \
     /* add new CMD_LIST elements above this line */
 
 
