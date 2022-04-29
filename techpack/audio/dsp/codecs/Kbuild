@@ -13,8 +13,10 @@ ifeq ($(KERNEL_BUILD), 1)
 	AUDIO_ROOT := $(AUDIO_BLD_DIR)/techpack/audio
 endif
 
-ifeq ($(AUDIO_FEATURE_ENABLED_CIRRUS_PLAYBACK),true)
-	EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
+ifdef CONFIG_SND_SOC_CS47l35
+ifdef CONFIG_SND_SOC_CS35l41
+LINUXINCLUDE += -I$(srctree)/techpack/cirrus/include
+endif
 endif
 
 ifeq ($(KERNEL_BUILD), 0)
