@@ -1,9 +1,12 @@
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
-EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
-EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include/linux
-EXTRA_CFLAGS += -I$(TOP)/vendor/qcom/opensource/audio-kernel/include
-EXTRA_CFLAGS += -I$(TOP)/vendor/qcom/opensource/audio-kernel/include/uapi/
+
+LINUXINCLUDE += \
+	-I$(srctree)/techpack/cirrus/include \
+	-I$(srctree)/techpack/cirrus/include/linux \
+	-I$(srctree)/techpack/cirrus/include/sound \
+	-I$(srctree)/techpack/audio/include \
+	-I$(srctree)/techpack/audio/include/uapi
 
 EXTRA_CFLAGS += -DCONFIG_SND_SOC_AOV_TRIGGER
 EXTRA_CFLAGS += -DCONFIG_MSM_QDSP6_NOTIFIER

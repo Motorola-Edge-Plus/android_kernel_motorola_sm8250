@@ -1,8 +1,11 @@
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
-EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
-EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include/linux
 EXTRA_CFLAGS += -DCONFIG_MFD_CS47L35
+
+LINUXINCLUDE += \
+	-I$(srctree)/techpack/cirrus/include \
+	-I$(srctree)/techpack/cirrus/include/linux
+
 cirrus_madera-core-objs = madera-core.o madera-spi.o madera-core.o madera-spi.o cs47l35-tables.o
 
 obj-m += cirrus_madera-core.o
