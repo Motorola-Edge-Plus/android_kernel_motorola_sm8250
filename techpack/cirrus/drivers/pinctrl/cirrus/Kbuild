@@ -1,10 +1,12 @@
 # add -Wall to try to catch everything we can.
 EXTRA_CFLAGS += -Wall
-EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include
-EXTRA_CFLAGS += -I$(TOP)/vendor/cirrus/audio/dlkm/include/linux
-EXTRA_CFLAGS += -I$(TOP)/kernel/msm-4.19/include
-EXTRA_CFLAGS += -I$(TOP)/kernel/msm-4.19/drivers/pinctrl
 EXTRA_CFLAGS += -DCONFIG_PINCTRL_CS47L35
+
+LINUXINCLUDE += \
+	-I$(srctree)/techpack/cirrus/include \
+	-I$(srctree)/techpack/cirrus/include/linux \
+	-I$(srctree)/include \
+	-I$(srctree)/drivers/pinctrl
 
 madera-pinctrl-objs = pinctrl-madera.o pinctrl-cs47l35.o
 obj-m += madera-pinctrl.o
