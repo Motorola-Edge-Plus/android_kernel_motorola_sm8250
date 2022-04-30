@@ -1357,4 +1357,6 @@ source "drivers/input/touchscreen/nt36xxx/Kconfig"
 
 source "drivers/input/touchscreen/touchscreen_mmi/Kconfig"
 
+source "drivers/input/touchscreen/goodix_gtx8_v1430_mmi/Kconfig"
+
 endif
