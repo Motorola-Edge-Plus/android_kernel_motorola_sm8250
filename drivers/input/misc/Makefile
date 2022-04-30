@@ -88,3 +88,4 @@ obj-$(CONFIG_INPUT_MMI_KEY_SWAP)	+= key_swap.o
 obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
 obj-y					+= goodix_fod_mmi/
 obj-y					+= qpnp_power_on_mmi/
+obj-y					+= vl53L1/

@@ -1,0 +1,8 @@
+config INPUT_MISC_STMVL53L1
+	tristate "STMVL53L1"
+
+config INPUT_MISC_TOF_USE_VL53L3
+	bool "TOF use VL53L1"
+
+config INPUT_MISC_PMIC_WL2864C
+	bool "PMIC WL2864C"
