@@ -1,0 +1,2 @@
+config MMI_RELAY
+	tristate "MMI Relay"
