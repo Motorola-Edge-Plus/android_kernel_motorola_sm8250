@@ -1,0 +1,2 @@
+config INPUT_QPNP_POWER_ON_MMI
+	tristate "QPNP Power On MMI"
