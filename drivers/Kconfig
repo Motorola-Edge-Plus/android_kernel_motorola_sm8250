@@ -235,4 +235,6 @@ source "drivers/energy_model/Kconfig"
 
 source "drivers/mmi_relay/Kconfig"
 
+source "drivers/mmi_annotate/Kconfig"
+
 endmenu

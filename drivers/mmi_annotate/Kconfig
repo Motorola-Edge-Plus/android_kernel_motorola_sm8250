@@ -1,0 +1,2 @@
+config MMI_ANNOTATE
+	tristate "MMI Annotate"
