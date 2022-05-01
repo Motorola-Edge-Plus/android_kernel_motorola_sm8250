@@ -117,3 +117,4 @@ obj-$(CONFIG_TOUCHSCREEN_NT36XXX)	+= nt36xxx/
 obj-y					+= touchscreen_mmi/
 obj-y					+= goodix_gtx8_v1430_mmi/
 obj-y					+= sec_mmi/
+obj-y					+= synaptics_tcm_mmi_v2/

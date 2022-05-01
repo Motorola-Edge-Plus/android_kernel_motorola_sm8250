@@ -1,0 +1,2 @@
+config INPUT_TOUCHSCREEN_SYNAPTICS_TCM_MMI_V2
+	tristate "Synaptics TCM MMI V2"
