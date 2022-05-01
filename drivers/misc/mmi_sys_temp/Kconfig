@@ -1,0 +1,2 @@
+config MMI_SYS_TEMP
+	tristate "MMI Sys Temp"

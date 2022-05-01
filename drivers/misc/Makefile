@@ -79,3 +79,4 @@ obj-$(CONFIG_FPR_FPC)		+= fpr_FingerprintCard/
 obj-y                           += qrc/
 obj-y				+= awinic/aw8697/
 obj-y				+= sx933x/
+obj-y				+= mmi_sys_temp/
