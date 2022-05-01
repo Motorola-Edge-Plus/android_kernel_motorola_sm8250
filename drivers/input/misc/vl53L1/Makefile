@@ -1,3 +1,6 @@
+subdir-ccflags-y += -I$(srctree)/drivers/input/misc/vl53L1/inc
+subdir-ccflags-y += -I$(srctree)/drivers/input/misc/vl53L1/ipp
+
 obj-$(CONFIG_INPUT_MISC_STMVL53L1)	+= stmvl53l1.o
 
 ifneq ($(filter m y,$(CONFIG_INPUT_MISC_TOF_USE_VL53L3)),)
