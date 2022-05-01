@@ -1,0 +1,2 @@
+config WATCHDOG_CPU_CTX
+	tristate "Watchdog CPU CTX"
