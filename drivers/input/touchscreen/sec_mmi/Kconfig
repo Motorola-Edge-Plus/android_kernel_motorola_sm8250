@@ -1,0 +1,2 @@
+config INPUT_TOUCHSCREEN_SEC_MMI
+	tristate "Sec MMI"
