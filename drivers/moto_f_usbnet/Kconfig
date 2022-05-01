@@ -1,0 +1,2 @@
+config MOTO_F_USBNET
+	tristate "Moto USB NET function"
