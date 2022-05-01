@@ -1,0 +1,2 @@
+config QPNP_SMBCHARGER_MMI
+	tristate "QPNP SMB Charger MMI"
