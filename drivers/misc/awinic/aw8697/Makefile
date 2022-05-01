@@ -1,0 +1,1 @@
+obj-$(CONFIG_INPUT_AWINIC_HAPTIC) += aw8697.o
