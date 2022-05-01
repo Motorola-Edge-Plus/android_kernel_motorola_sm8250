@@ -194,3 +194,4 @@ obj-$(CONFIG_GNSS)		+= gnss/
 obj-$(CONFIG_SENSORS_SSC)	+= sensors/
 obj-y				+= mmi_relay/
 obj-y				+= mmi_annotate/
+obj-y				+= mmi_info/
