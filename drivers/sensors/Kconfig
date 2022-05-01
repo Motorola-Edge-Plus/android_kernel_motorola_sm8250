@@ -5,3 +5,6 @@ config SENSORS_SSC
 	  Add support for sensors SSC driver.
 	  This driver is used for exercising sensors use case,
 	  time syncing with ADSP clock.
+
+config SENSORS_CLASS
+	tristate "Sensors Class"
