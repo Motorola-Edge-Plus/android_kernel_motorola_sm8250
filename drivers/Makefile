@@ -198,3 +198,4 @@ obj-y				+= mmi_info/
 obj-y				+= moto_f_usbnet/
 obj-y				+= tzlog_dump/
 obj-y				+= watchdog_cpu_ctx/
+obj-y				+= watchdogtest/
