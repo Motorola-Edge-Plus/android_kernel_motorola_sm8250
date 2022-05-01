@@ -243,4 +243,6 @@ source "drivers/moto_f_usbnet/Kconfig"
 
 source "drivers/tzlog_dump/Kconfig"
 
+source "drivers/watchdog_cpu_ctx/Kconfig"
+
 endmenu
