@@ -10,3 +10,5 @@ ccflags-y += -I$(srctree)/techpack/camera/drivers/cam_smmu
 ccflags-y += -I$(srctree)
 
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_cci_dev.o cam_cci_core.o cam_cci_soc.o
+
+obj-$(CONFIG_SPECTRA_CAMERA_CCI_INTF) += cci_intf.o
