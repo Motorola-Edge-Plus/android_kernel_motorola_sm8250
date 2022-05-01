@@ -1,0 +1,2 @@
+config NFC_ST21NFC
+	tristate "ST21NFC"
