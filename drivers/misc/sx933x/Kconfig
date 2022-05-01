@@ -1,0 +1,14 @@
+config SX933X
+	tristate "SX933X"
+
+config CAPSENSE_USB_CAL
+	bool "USB calibration"
+
+config CAPSENSE_ATTACH_CAL
+	bool "Attach calibration"
+
+config CAPSENSE_FLIP_CAL
+	bool "Flip calibration"
+
+config CAPSENSE_HEADSET_STATE
+	bool "Headset state"
