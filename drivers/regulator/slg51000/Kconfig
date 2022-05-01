@@ -1,0 +1,2 @@
+config REGULATOR_SLG51000
+	tristate "SLG51000 Regulator"
