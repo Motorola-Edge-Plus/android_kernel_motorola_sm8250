@@ -1,0 +1,2 @@
+config INPUT_AWINIC_HAPTIC
+	tristate "Awinic Haptics"
