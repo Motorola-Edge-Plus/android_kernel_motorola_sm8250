@@ -196,3 +196,4 @@ obj-y				+= mmi_relay/
 obj-y				+= mmi_annotate/
 obj-y				+= mmi_info/
 obj-y				+= moto_f_usbnet/
+obj-y				+= tzlog_dump/
