@@ -78,3 +78,4 @@ obj-$(CONFIG_QTI_XR_SMRTVWR_MISC) += qxr-stdalonevwr.o
 obj-$(CONFIG_FPR_FPC)		+= fpr_FingerprintCard/
 obj-y				+= awinic/aw8697/
 obj-y				+= sx933x/
+obj-y				+= mmi_sys_temp/
