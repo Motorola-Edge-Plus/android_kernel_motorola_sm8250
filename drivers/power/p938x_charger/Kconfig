@@ -1,0 +1,2 @@
+config P938X_CHARGER
+	tristate "P938X Charger"
