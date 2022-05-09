@@ -1,0 +1,2 @@
+config UTAGS
+	tristate "UTAGS"
