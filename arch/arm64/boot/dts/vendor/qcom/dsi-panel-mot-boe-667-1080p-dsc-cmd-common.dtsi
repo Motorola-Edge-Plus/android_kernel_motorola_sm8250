@@ -58,7 +58,7 @@ qcom,mdss-brightness-max-level = <1600>;
 qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
 
 qcom,mdss-dsi-hbm-on-command = [
-		39 01 00 00 00 00 03 51 0F FF];
+		39 01 00 00 10 00 03 51 0F FF];
 qcom,mdss-dsi-hbm-off-command = [
 		39 01 00 00 00 00 03 51 06 40];
 
