@@ -1135,15 +1135,6 @@ static int dsi_panel_set_hbm(struct dsi_panel *panel,
                         struct msm_param_info *param_info)
 {
 	int rc = 0;
-        char name[30], val[30];
-	char *envp[3];
-
-	snprintf(name, 30, "name=%s", "HBM");
-	snprintf(val, 30, "status=%d", param_info->value);
-	envp[0] = name;
-	envp[1] = val;
-	envp[2] = NULL;
-	kobject_uevent_env(&panel->parent->kobj, KOBJ_CHANGE, envp);
 
 	rc = dsi_panel_send_param_cmd(panel, param_info);
 	if (rc < 0) {
