@@ -222,7 +222,7 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 	}
 
 	if (!(panel->bl_config.bl_level && bl_lvl))
-		DSI_INFO("bl_level changed from %u to %u\n",
+		DSI_DEBUG("bl_level changed from %u to %u\n",
 		       (u32)(panel->bl_config.bl_level), (u32)bl_lvl);
 
 	panel->bl_config.bl_level = bl_lvl;
@@ -7273,9 +7273,9 @@ int dsi_display_set_mode(struct dsi_display *display,
 		goto error;
 	}
 
-	DSI_INFO("mdp_transfer_time_us=%d us\n",
+	DSI_DEBUG("mdp_transfer_time_us=%d us\n",
 			adj_mode.priv_info->mdp_transfer_time_us);
-	DSI_INFO("hactive= %d,vactive= %d,fps=%d\n",
+	DSI_DEBUG("hactive= %d,vactive= %d,fps=%d\n",
 			timing.h_active, timing.v_active,
 			timing.refresh_rate);
 
@@ -7661,7 +7661,7 @@ int dsi_display_prepare(struct dsi_display *display)
 		return -EINVAL;
 	}
 
-	DSI_INFO("panel_name=%s ctrl-index=%d\n",
+	DSI_DEBUG("panel_name=%s ctrl-index=%d\n",
 		display->panel->name, ctrl->ctrl->cell_index);
 
 	SDE_EVT32(SDE_EVTLOG_FUNC_ENTRY);
@@ -8472,7 +8472,7 @@ int dsi_display_disable(struct dsi_display *display)
 		return -EINVAL;
 	}
 
-	DSI_INFO("%s(%s)+\n", __func__, display->drm_conn->name);
+	DSI_DEBUG("%s(%s)+\n", __func__, display->drm_conn->name);
 	SDE_EVT32(SDE_EVTLOG_FUNC_ENTRY);
 	mutex_lock(&display->display_lock);
 
@@ -8547,7 +8547,7 @@ int dsi_display_unprepare(struct dsi_display *display)
 	mutex_lock(&display->display_lock);
 
 	//Check is Mot early power is on going
-	pr_info("display %p, name %s is_dsi_mot_primary(%d)\n", display, display->name, display->is_dsi_mot_primary);
+	pr_debug("display %p, name %s is_dsi_mot_primary(%d)\n", display, display->name, display->is_dsi_mot_primary);
 	if ( display->is_dsi_mot_early_power_enabled && !display->is_dsi_display_prepared) {
 		mutex_unlock(&display->display_lock);
 		pr_info("panel already unprepared\n");
