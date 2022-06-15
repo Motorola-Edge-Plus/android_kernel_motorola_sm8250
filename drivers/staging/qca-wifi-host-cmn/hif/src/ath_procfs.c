@@ -16,7 +16,6 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-#if defined(CONFIG_ATH_PROCFS_DIAG_SUPPORT)
 #include <linux/module.h>       /* Specifically, a module */
 #include <linux/kernel.h>       /* We're doing kernel work */
 #include <linux/version.h>      /* We're doing kernel work */
@@ -41,6 +40,7 @@
 #define PROCFS_DIR              "cld"
 #endif
 
+#if defined(CONFIG_ATH_PROCFS_DIAG_SUPPORT)
 /**
  * This structure hold information about the /proc file
  *
