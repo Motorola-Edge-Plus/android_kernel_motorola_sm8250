@@ -32,6 +32,7 @@ extern void *cnss_ipc_log_long_context;
 		cnss_ipc_log_string("%scnss: " _fmt, "", ##__VA_ARGS__);\
 	} while (0)
 
+#ifdef CONFIG_CNSS2_DEBUG
 #define cnss_pr_info(_fmt, ...) do {					\
 		printk("%scnss: " _fmt, KERN_INFO, ##__VA_ARGS__);	\
 		cnss_ipc_log_string("%scnss: " _fmt, "", ##__VA_ARGS__);\
@@ -47,6 +48,11 @@ extern void *cnss_ipc_log_long_context;
 		cnss_ipc_log_long_string("%scnss: " _fmt, "",		\
 					 ##__VA_ARGS__);		\
 	} while (0)
+#else
+#define cnss_pr_info(_fmt, ...)
+#define cnss_pr_dbg(_fmt, ...)
+#define cnss_pr_vdbg(_fmt, ...)
+#endif
 
 #ifdef CONFIG_CNSS2_DEBUG
 #define CNSS_ASSERT(_condition) do {					\
