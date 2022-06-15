@@ -228,7 +228,9 @@ dp_rx_link_desc_return_by_addr(struct dp_soc *soc,
 				src_srng_desc, link_desc_addr, bm_action);
 		status = QDF_STATUS_SUCCESS;
 	} else {
+#if defined(WLAN_DEBUG) || defined(DEBUG) || defined(QDF_TRACE_PRINT_ENABLE)
 		struct hal_srng *srng = (struct hal_srng *)wbm_rel_srng;
+#endif
 
 		DP_STATS_INC(soc, rx.err.hal_ring_access_full_fail, 1);
 
