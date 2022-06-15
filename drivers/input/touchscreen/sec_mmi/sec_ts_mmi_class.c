@@ -973,7 +973,7 @@ static int sec_mmi_methods_refresh_rate(struct device *dev, int freq) {
 		return -ENODEV;
 	}
 
-	dev_info(dev, "%s: writing refresh rate %dhz\n", __func__, freq);
+	dev_dbg(dev, "%s: writing refresh rate %dhz\n", __func__, freq);
 	ret = ts->sec_ts_i2c_write(ts, 0x4C, &f, 1);
 	if (ret < 0) {
 		dev_err(dev, "%s: failed refresh_rate (%d)\n", __func__, ret);

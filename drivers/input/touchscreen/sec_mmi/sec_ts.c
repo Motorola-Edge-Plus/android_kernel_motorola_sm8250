@@ -414,7 +414,7 @@ int sec_ts_wait_for_ready(struct sec_ts_data *ts, unsigned int ack)
 		sec_ts_delay(20);
 	}
 
-	input_info(true, &ts->client->dev,
+	input_dbg(true, &ts->client->dev,
 			"%s: %02X, %02X, %02X, %02X, %02X, %02X, %02X, %02X [%d]\n",
 			__func__, tBuff[0], tBuff[1], tBuff[2], tBuff[3],
 			tBuff[4], tBuff[5], tBuff[6], tBuff[7], retry);
@@ -583,7 +583,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 			return;
 		}
 
-		input_info(true, &ts->client->dev, "%s: run LPM interrupt handler, %d\n", __func__, ret);
+		input_dbg(true, &ts->client->dev, "%s: run LPM interrupt handler, %d\n", __func__, ret);
 		/* run lpm interrupt handler */
 	}
 
@@ -647,7 +647,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 
 			/* tchsta == 0 && ttype == 0 && eid == 0 : buffer empty */
 			if (p_event_status->stype > 0)
-				input_info(true, &ts->client->dev, "%s: STATUS %x %x %x %x %x %x %x %x\n", __func__,
+				input_dbg(true, &ts->client->dev, "%s: STATUS %x %x %x %x %x %x %x %x\n", __func__,
 						event_buff[0], event_buff[1], event_buff[2],
 						event_buff[3], event_buff[4], event_buff[5],
 						event_buff[6], event_buff[7]);
@@ -801,7 +801,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 						}
 
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
-						input_info(true, &ts->client->dev,
+						input_dbg(true, &ts->client->dev,
 								"%s[R] tID:%d mc:%d tc:%d lx:%d ly:%d v:%02X%02X cal:%02X id(%d,%d) p:%d noise:%x lp:(%x)\n",
 								ts->dex_name,
 								t_id, ts->coord[t_id].mcount, ts->touch_count,
@@ -812,7 +812,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 								ts->tspicid_val, ts->coord[t_id].palm_count,
 								ts->touch_noise_status, ts->lowpower_mode);
 #else
-						input_info(true, &ts->client->dev,
+						input_dbg(true, &ts->client->dev,
 								"%s[R] tID:%d mc:%d tc:%d v:%02X%02X cal:%02X id(%d,%d) p:%d noise:%x lp:(%x)\n",
 								ts->dex_name,
 								t_id, ts->coord[t_id].mcount, ts->touch_count,
@@ -861,7 +861,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 						}
 
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
-						input_info(true, &ts->client->dev,
+						input_dbg(true, &ts->client->dev,
 								"%s[P] tID:%d x:%d y:%d z:%d major:%d minor:%d tc:%d type:%X noise:%x\n",
 								ts->dex_name, t_id, ts->coord[t_id].x,
 								ts->coord[t_id].y, ts->coord[t_id].z,
@@ -869,7 +869,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 								ts->touch_count,
 								ts->coord[t_id].ttype, ts->touch_noise_status);
 #else
-						input_info(true, &ts->client->dev,
+						input_dbg(true, &ts->client->dev,
 								"%s[P] tID:%d z:%d major:%d minor:%d tc:%d type:%X noise:%x\n",
 								ts->dex_name,
 								t_id, ts->coord[t_id].z, ts->coord[t_id].major,
@@ -930,7 +930,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 
 		case SEC_TS_GESTURE_EVENT:
 			gs = (struct sec_ts_gesture_status *)event_buff;
-			input_info(true, &ts->client->dev, "%s: GESTURE %x %x %x %x %x %x %x %x\n", __func__,
+			input_dbg(true, &ts->client->dev, "%s: GESTURE %x %x %x %x %x %x %x %x\n", __func__,
 						gs->eid | (gs->stype << 2) | (gs->sf << 6),
 						gs->gesture_id, gs->gesture_data_1, gs->gesture_data_2,
 						gs->gesture_data_3, gs->gesture_data_4, gs->reserved_1,
@@ -1011,12 +1011,12 @@ void sec_ts_set_charger(struct sec_ts_data *ts, bool enable)
 	u8 charger_out[] = {0x01};
 
 	if (enable) {
-		input_info(true, &ts->client->dev,
+		input_dbg(true, &ts->client->dev,
 					"sec_ts_set_charger : charger CONNECTED!!\n");
 		ret = sec_ts_i2c_write(ts, SET_TS_CMD_SET_CHARGER_MODE,
 						charger_in, sizeof(charger_in));
 	} else {
-		input_info(true, &ts->client->dev,
+		input_dbg(true, &ts->client->dev,
 					"sec_ts_set_charger : charger DISCONNECTED!!\n");
 		ret = sec_ts_i2c_write(ts, SET_TS_CMD_SET_CHARGER_MODE,
 						charger_out, sizeof(charger_out));
@@ -1159,7 +1159,7 @@ int sec_ts_pinctrl_configure(struct sec_ts_data *ts, bool enable)
 	int rc = 0;
 	struct pinctrl_state *state;
 
-	input_info(true, &ts->client->dev, "%s: %s\n", __func__, enable ? "ACTIVE" : "SUSPEND");
+	input_dbg(true, &ts->client->dev, "%s: %s\n", __func__, enable ? "ACTIVE" : "SUSPEND");
 
 	if (enable) {
 		state = pinctrl_lookup_state(ts->plat_data->pinctrl, "on_state");
@@ -1260,7 +1260,7 @@ int sec_ts_power(void *data, bool on)
 	enabled = on;
 
 out:
-	input_err(true, &ts->client->dev,
+	input_dbg(true, &ts->client->dev,
 		"%s: %s: %s:%s, %s:%s\n", __func__, on ? "on" : "off",
 		pdata->regulator_avdd,
 		regulator_is_enabled(ts->regulator_avdd) ? "on" : "off",
@@ -1620,7 +1620,7 @@ static int sec_ts_read_fw_info(struct sec_ts_data *ts)
 		return ret;
 	}
 
-	input_info(true, &ts->client->dev,
+	input_dbg(true, &ts->client->dev,
 			"%s: STATUS : %X\n",
 			__func__, data[0]);
 
@@ -2256,7 +2256,7 @@ int sec_ts_set_lowpowermode(struct sec_ts_data *ts, u8 mode)
 	u8 data;
 	char para = 0;
 
-	input_err(true, &ts->client->dev, "%s: %s(%X)\n", __func__,
+	input_dbg(true, &ts->client->dev, "%s: %s(%X)\n", __func__,
 			mode == TO_LOWPOWER_MODE ? "ENTER" : "EXIT", ts->lowpower_mode);
 
 	if (mode) {
@@ -2270,7 +2270,7 @@ int sec_ts_set_lowpowermode(struct sec_ts_data *ts, u8 mode)
 
 		//data = (ts->lowpower_mode & SEC_TS_MODE_LOWPOWER_FLAG) >> 1;
 		data = 0x1;
-		input_err(true, &ts->client->dev, "%s: setting gesture mode (%X)\n",
+		input_dbg(true, &ts->client->dev, "%s: setting gesture mode (%X)\n",
 			__func__, data);
 		ret = sec_ts_i2c_write(ts, SEC_TS_CMD_WAKEUP_GESTURE_MODE, &data, 1);
 		if (ret < 0) {
@@ -2293,7 +2293,7 @@ retry_pmode:
 		input_err(true, &ts->client->dev, "%s: read power mode failed!\n", __func__);
 		goto i2c_error;
 	} else {
-		input_info(true, &ts->client->dev, "%s: power mode - write(%d) read(%d)\n", __func__, mode, para);
+		input_dbg(true, &ts->client->dev, "%s: power mode - write(%d) read(%d)\n", __func__, mode, para);
 	}
 
 	if (mode != para) {
@@ -2325,7 +2325,7 @@ retry_pmode:
 		ts->power_status = SEC_TS_STATE_POWER_ON;
 
 i2c_error:
-	input_info(true, &ts->client->dev, "%s: end %d\n", __func__, ret);
+	input_dbg(true, &ts->client->dev, "%s: end %d\n", __func__, ret);
 
 	return ret;
 }
