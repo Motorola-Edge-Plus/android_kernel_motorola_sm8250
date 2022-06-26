@@ -52,6 +52,9 @@
 #define EVENT_DISPLAY_ON \
 	(event == PANEL_EVENT_DISPLAY_ON)
 
+#define EVENT_DISPLAY_LP \
+	(event == PANEL_EVENT_DISPLAY_LP)
+
 #else /* CONFIG_PANEL_NOTIFICATIONS */
 #if defined(CONFIG_DRM_PANEL_EVENT_NOTIFICATIONS)
 #include <linux/soc/qcom/panel_event_notifier.h>
