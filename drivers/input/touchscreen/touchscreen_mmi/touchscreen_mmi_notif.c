@@ -126,7 +126,7 @@ static int ts_mmi_panel_cb(struct notifier_block *nb,
 	/* entering suspend upon early blank event */
 	/* to ensure shared power supply is still on */
 	/* for in-cell design touch solutions */
-	if (EVENT_PRE_DISPLAY_OFF) {
+	if (EVENT_PRE_DISPLAY_OFF || EVENT_DISPLAY_LP) {
 		cancel_delayed_work_sync(&touch_cdev->work);
 		ts_mmi_panel_off(touch_cdev);
 		if (NEED_TO_SET_PINCTRL) {
