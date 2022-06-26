@@ -981,6 +981,8 @@ static void _sde_kms_drm_check_dpms(struct drm_atomic_state *old_state,
 					panel_event = PANEL_EVENT_PRE_DISPLAY_OFF;
 				else if (event == DRM_PANEL_EVENT_BLANK)
 					panel_event = PANEL_EVENT_DISPLAY_OFF;
+			} else if (new_mode == DRM_PANEL_BLANK_LP) {
+				panel_event = PANEL_EVENT_DISPLAY_LP;
 			} else {
 				return;
 			}
