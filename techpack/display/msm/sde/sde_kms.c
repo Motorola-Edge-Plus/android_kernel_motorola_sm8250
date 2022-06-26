@@ -61,6 +61,10 @@
 #define CREATE_TRACE_POINTS
 #include "sde_trace.h"
 
+#if defined(CONFIG_PANEL_NOTIFICATIONS)
+#include <linux/panel_notifier.h>
+#endif
+
 /* defines for secure channel call */
 #define MEM_PROTECT_SD_CTRL_SWITCH 0x18
 #define MDP_DEVICE_ID            0x1A
@@ -939,6 +943,10 @@ static void _sde_kms_drm_check_dpms(struct drm_atomic_state *old_state,
 
 		if ((old_mode != new_mode) || (old_fps != new_fps)) {
 			struct drm_panel_notifier notifier_data;
+#if defined(CONFIG_PANEL_NOTIFICATIONS)
+			enum panel_event panel_event;
+			int idx = 0;
+#endif
 
 			SDE_EVT32(old_mode, new_mode, old_fps, new_fps,
 				connector->panel, crtc->state->active,
@@ -961,6 +969,24 @@ static void _sde_kms_drm_check_dpms(struct drm_atomic_state *old_state,
 			if (connector->panel)
 				drm_panel_notifier_call_chain(connector->panel,
 							event, &notifier_data);
+
+#if defined(CONFIG_PANEL_NOTIFICATIONS)
+			if (new_mode == DRM_PANEL_BLANK_UNBLANK) {
+				if (event == DRM_PANEL_EARLY_EVENT_BLANK)
+					panel_event = PANEL_EVENT_PRE_DISPLAY_ON;
+				else if (event == DRM_PANEL_EVENT_BLANK)
+					panel_event = PANEL_EVENT_DISPLAY_ON;
+			} else if (new_mode == DRM_PANEL_BLANK_POWERDOWN) {
+				if (event == DRM_PANEL_EARLY_EVENT_BLANK)
+					panel_event = PANEL_EVENT_PRE_DISPLAY_OFF;
+				else if (event == DRM_PANEL_EVENT_BLANK)
+					panel_event = PANEL_EVENT_DISPLAY_OFF;
+			} else {
+				return;
+			}
+
+			panel_notify(panel_event, &idx);
+#endif
 		}
 	}
 }
